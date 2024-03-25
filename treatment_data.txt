@@ -1,3 +1,2 @@
-Medical Record Number: 123
-Treatment Data: 123
-
+{"medicalRecord":"123","treatment":"123","date":"123","patientID":"123"}
+{"medicalRecord":"222","treatment":"222","date":"222","patientID":"222"}

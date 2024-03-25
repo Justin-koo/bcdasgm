@@ -91,16 +91,21 @@ public class Main {
             case 1:
             	HealthcareProvider provider = new HealthcareProvider();
 
-//            	need to add few more options eg: date, patient id? 
                 System.out.print("Enter patient's medical record number: ");
                 String medicalRecord = scanner.nextLine();
 
                 System.out.print("Enter treatment data: ");
                 String treatmentData = scanner.nextLine();
 
-                provider.updateTreatmentData(medicalRecord, treatmentData);
+                System.out.print("Enter date (YYYY-MM-DD): ");
+                String date = scanner.nextLine();
+
+                System.out.print("Enter patient ID: ");
+                String patientID = scanner.nextLine();
+
+                provider.updateTreatmentData(medicalRecord, treatmentData, date, patientID);
                 System.out.println("Treatment data updated successfully.");
-                
+
                 displayHealthcareProviderMenu();
                 break;
             case 2:

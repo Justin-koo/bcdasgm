@@ -1,11 +1,11 @@
 package app;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
-import crypto.Symmetric;
-import javax.crypto.*;
+import java.io.*;
+import com.google.gson.Gson;
+//import crypto.Symmetric;
+//import javax.crypto.*;
 
 public class HealthcareProvider {
     private Map<String, String> treatmentData; // Key: patient's medical record number, Value: treatment data
@@ -15,11 +15,12 @@ public class HealthcareProvider {
         this.treatmentData = new HashMap<>();
     }
 
-    public void updateTreatmentData(String medicalRecord, String treatment) {
-//        treatmentData.put(medicalRecord, treatment);
-    	try (FileWriter writer = new FileWriter(TREATMENT_FILE, true)) {
-            writer.write("Medical Record Number: " + medicalRecord + "\n");
-            writer.write("Treatment Data: " + treatment + "\n\n");
+    public void updateTreatmentData(String medicalRecord, String treatment, String date, String patientID) {
+        try (FileWriter writer = new FileWriter(TREATMENT_FILE, true)) {
+            Gson gson = new Gson();
+            TreatmentRecord record = new TreatmentRecord(medicalRecord, treatment, date, patientID);
+            String jsonRecord = gson.toJson(record);
+            writer.write(jsonRecord + "\n");
             System.out.println("Treatment data updated and saved to file successfully.");
         } catch (IOException e) {
             System.err.println("Error writing to the file: " + e.getMessage());
