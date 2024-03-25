@@ -62,15 +62,23 @@ public class Main {
         System.out.println("4. Go back");
 
         int choice = getUserChoice();
+        Patient patient = new Patient();
+        
         switch (choice) {
             case 1:
-                // Implement viewing medical records functionality
+            	patient.viewMedicalRecords();
+            	
+            	displayPatientMenu();
                 break;
             case 2:
-                // Implement filing health insurance claim functionality
+            	patient.fileHealthInsuranceClaim();
+            	
+            	displayPatientMenu();
                 break;
             case 3:
-                // Implement viewing insurance claim status functionality
+            	patient.viewInsuranceClaimStatus();
+            	
+            	displayPatientMenu();
                 break;
             case 4:
                 displayRoleSelectionMenu();
@@ -91,12 +99,14 @@ public class Main {
             case 1:
             	HealthcareProvider provider = new HealthcareProvider();
 
+//            	need to add more parameters: digital signature, who wrote this
                 System.out.print("Enter patient's medical record number: ");
                 String medicalRecord = scanner.nextLine();
 
                 System.out.print("Enter treatment data: ");
                 String treatmentData = scanner.nextLine();
 
+//                change this to auto get current data in the correct format
                 System.out.print("Enter date (YYYY-MM-DD): ");
                 String date = scanner.nextLine();
 
@@ -125,7 +135,10 @@ public class Main {
         int choice = getUserChoice();
         switch (choice) {
             case 1:
-                // Implement processing insurance claim functionality
+            	InsuranceCompany insuranceCompany = new InsuranceCompany();
+                insuranceCompany.processInsuranceClaim();
+            	
+            	displayInsuranceCompanyMenu();
                 break;
             case 2:
                 displayRoleSelectionMenu();

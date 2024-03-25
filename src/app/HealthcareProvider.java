@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 
 public class HealthcareProvider {
     private Map<String, String> treatmentData; // Key: patient's medical record number, Value: treatment data
-    private static final String TREATMENT_FILE = "treatment_data.txt";
+    private static final String TREATMENT_FILE = "treatment_records.txt";
     
     public HealthcareProvider() {
         this.treatmentData = new HashMap<>();
