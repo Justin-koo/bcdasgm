@@ -10,6 +10,10 @@ public class Patient {
         this.medicalRecord = medicalRecord;
         this.insuranceStatus = insuranceStatus;
     }
+    
+    public void fileInsuranceClaim(String claimDetails) {
+    	
+    }
 
     // Getters and setters
 }

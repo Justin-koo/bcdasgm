@@ -91,6 +91,7 @@ public class Main {
             case 1:
             	HealthcareProvider provider = new HealthcareProvider();
 
+//            	need to add few more options eg: date, patient id? 
                 System.out.print("Enter patient's medical record number: ");
                 String medicalRecord = scanner.nextLine();
 
