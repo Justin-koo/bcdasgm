@@ -88,10 +88,10 @@ public class Asymmetric {
     }
     
  // Method to load the public key for a specific patient
-    public static PublicKey loadPublicKeyForPatient(String patientID) {
-        File publicKeyFile = new File(CRYPTO_FOLDER + File.separator + patientID, "public.key");
+    public static PublicKey loadPublicKey(String userID) {
+        File publicKeyFile = new File(CRYPTO_FOLDER + File.separator + userID, "public.key");
         if (!publicKeyFile.exists()) {
-            System.err.println("Public key file not found for patient: " + patientID);
+            System.err.println("Public key file not found for user: " + userID);
             return null;
         }
 
@@ -104,10 +104,10 @@ public class Asymmetric {
     }
 
     // Method to load the private key for a specific patient
-    public static PrivateKey loadPrivateKeyForPatient(String patientID) {
-        File privateKeyFile = new File(CRYPTO_FOLDER + File.separator + patientID, "private.key");
+    public static PrivateKey loadPrivateKey(String userID) {
+        File privateKeyFile = new File(CRYPTO_FOLDER + File.separator + userID, "private.key");
         if (!privateKeyFile.exists()) {
-            System.err.println("Private key file not found for patient: " + patientID);
+            System.err.println("Private key file not found for user: " + userID);
             return null;
         }
 

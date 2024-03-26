@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.PublicKey;
 import java.util.Scanner;
 
 import javax.crypto.SecretKey;
 
+import crypto.Asymmetric;
 import crypto.Symmetric;
 import com.google.gson.*;
 
@@ -49,8 +51,11 @@ public class Patient {
             claimObject.add("medications", medicationsArray);
             claimObject.addProperty("claimStatus", "Pending");
 
+            PublicKey medicalProviderPublicKey = Asymmetric.loadPublicKey("mdProvider");
+            String encryptedClaim = Asymmetric.encrypt(claimObject.toString(), medicalProviderPublicKey);
+            
             // Write the insurance claim details to the file
-            writer.write(claimObject.toString() + "\n");
+            writer.write(encryptedClaim + "\n");
             System.out.println("Health insurance claim filed successfully.");
 
         } catch (IOException e) {
