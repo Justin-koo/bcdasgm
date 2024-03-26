@@ -2,10 +2,15 @@ package crypto;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 public class Symmetric {
+	private static final String CRYPTO_FOLDER = "Crypto";
+    private static final String SECRET_FOLDER = "Secret";
+    private static final String KEY_FILE = "symmetric.key";
+    
     // Method to generate a symmetric encryption key using AES algorithm
     public static SecretKey generateKey() {
         try {
@@ -51,6 +56,33 @@ public class Symmetric {
             return new String(decryptedBytes);
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
+        }
+    }
+    
+ // Method to store the symmetric encryption key in a file
+    public static void storeKey(SecretKey key) {
+        File folder = new File(CRYPTO_FOLDER + File.separator + SECRET_FOLDER);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(folder, KEY_FILE)))) {
+            oos.writeObject(key);
+            System.out.println("Symmetric key stored successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error storing symmetric key: " + e.getMessage());
+        }
+    }
+
+    // Method to load the symmetric encryption key from a file
+    public static SecretKey loadKey() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(CRYPTO_FOLDER + File.separator + SECRET_FOLDER + File.separator + KEY_FILE))) {
+            return (SecretKey) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            System.err.println("Error loading symmetric key: " + e.getMessage());
             return null;
         }
     }

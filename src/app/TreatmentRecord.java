@@ -14,5 +14,21 @@ public class TreatmentRecord {
         this.date = date;
         this.patientID = patientID;
     }
+    
+    public String getMedicalRecord() {
+        return medicalRecord;
+    }
+
+    public String getTreatment() {
+        return treatment;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getPatientID() {
+        return patientID;
+    }
 }
 

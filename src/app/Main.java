@@ -55,6 +55,10 @@ public class Main {
     }
 
     private static void displayPatientMenu() {
+    	System.out.print("Enter your patient ID: ");
+        String patientID = scanner.nextLine();
+        Patient patient = new Patient(patientID);
+        
         System.out.println("Patient/Consumer Menu");
         System.out.println("1. View medical records");
         System.out.println("2. File health insurance claim");
@@ -62,7 +66,6 @@ public class Main {
         System.out.println("4. Go back");
 
         int choice = getUserChoice();
-        Patient patient = new Patient();
         
         switch (choice) {
             case 1:
