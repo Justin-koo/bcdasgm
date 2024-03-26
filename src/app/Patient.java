@@ -35,15 +35,24 @@ public class Patient {
         }
     }
     
-    public void fileHealthInsuranceClaim() {
+    public void fileHealthInsuranceClaim(String diagnosis, String treatment, String[] medications) {
         try (FileWriter writer = new FileWriter("insurance_claims.txt", true)) {
-            // Collect input for the insurance claim
-            System.out.print("Enter your insurance claim details: ");
-            String claimDetails = scanner.nextLine();
+        	
+        	JsonObject claimObject = new JsonObject();
+            claimObject.addProperty("patientID", patientID);
+            claimObject.addProperty("diagnosis", diagnosis);
+            claimObject.addProperty("treatment", treatment);
+            JsonArray medicationsArray = new JsonArray();
+            for (String medication : medications) {
+                medicationsArray.add(medication);
+            }
+            claimObject.add("medications", medicationsArray);
+            claimObject.addProperty("claimStatus", "Pending");
 
-            // Write the claim details to the file
-            writer.write(claimDetails + "\n");
+            // Write the insurance claim details to the file
+            writer.write(claimObject.toString() + "\n");
             System.out.println("Health insurance claim filed successfully.");
+
         } catch (IOException e) {
             System.err.println("Error filing health insurance claim: " + e.getMessage());
         }

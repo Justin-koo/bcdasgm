@@ -74,7 +74,17 @@ public class Main {
             	displayPatientMenu();
                 break;
             case 2:
-            	patient.fileHealthInsuranceClaim();
+            	System.out.print("Enter diagnosis: ");
+                String diagnosis = scanner.nextLine();
+                
+                System.out.print("Enter treatment: ");
+                String treatment = scanner.nextLine();
+                
+                System.out.print("Enter medications (separated by comma): ");
+                String[] medications = scanner.nextLine().split(",");
+
+                // File the health insurance claim with the collected details
+                patient.fileHealthInsuranceClaim(diagnosis, treatment, medications);
             	
             	displayPatientMenu();
                 break;
@@ -122,6 +132,8 @@ public class Main {
                 displayHealthcareProviderMenu();
                 break;
             case 2:
+            	
+            case 3:
                 displayRoleSelectionMenu();
                 break;
             default:

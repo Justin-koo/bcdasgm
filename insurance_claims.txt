@@ -1,1 +1,2 @@
 123
+{"patientID":"123","diagnosis":"test","treatment":"test","medications":["test"],"claimStatus":"Pending"}
