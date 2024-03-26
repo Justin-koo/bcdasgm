@@ -1,2 +1,3 @@
-123
-{"patientID":"123","diagnosis":"test","treatment":"test","medications":["test"],"claimStatus":"Pending"}
+{"patientID":"123","diagnosis":"1","treatment":"1","medications":["1"],"claimStatus":"Pending"}
+{"patientID":"123","diagnosis":"3","treatment":"4","medications":["5"],"claimStatus":"Pending"}
+{"patientID":"222","diagnosis":"123","treatment":"123","medications":["123"],"claimStatus":"Pending"}

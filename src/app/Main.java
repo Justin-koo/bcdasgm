@@ -22,7 +22,11 @@ public class Main {
         int choice = getUserChoice();
         switch (choice) {
             case 1:
-                displayPatientMenu();
+            	System.out.print("Enter your patient ID: ");
+                String patientID = scanner.nextLine();
+                Patient patient = new Patient(patientID);
+                
+                displayPatientMenu(patient);
                 break;
             case 2:
                 displayHealthcareProviderMenu();
@@ -54,11 +58,7 @@ public class Main {
         return choice;
     }
 
-    private static void displayPatientMenu() {
-    	System.out.print("Enter your patient ID: ");
-        String patientID = scanner.nextLine();
-        Patient patient = new Patient(patientID);
-        
+    private static void displayPatientMenu(Patient patient) {
         System.out.println("Patient/Consumer Menu");
         System.out.println("1. View medical records");
         System.out.println("2. File health insurance claim");
@@ -71,7 +71,7 @@ public class Main {
             case 1:
             	patient.viewMedicalRecords();
             	
-            	displayPatientMenu();
+            	displayPatientMenu(patient);
                 break;
             case 2:
             	System.out.print("Enter diagnosis: ");
@@ -86,19 +86,19 @@ public class Main {
                 // File the health insurance claim with the collected details
                 patient.fileHealthInsuranceClaim(diagnosis, treatment, medications);
             	
-            	displayPatientMenu();
+            	displayPatientMenu(patient);
                 break;
             case 3:
             	patient.viewInsuranceClaimStatus();
             	
-            	displayPatientMenu();
+            	displayPatientMenu(patient);
                 break;
             case 4:
                 displayRoleSelectionMenu();
                 break;
             default:
                 System.out.println("Invalid choice. Please try again.");
-                displayPatientMenu();
+                displayPatientMenu(patient);
         }
     }
 
