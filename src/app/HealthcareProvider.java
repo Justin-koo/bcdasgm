@@ -43,9 +43,9 @@ public class HealthcareProvider {
             System.out.println("Health Insurance Claims:");
             String line;
             int lineNumber = 1;
+            PrivateKey privateKey = Asymmetric.loadPrivateKey("mdProvider");
             
             while ((line = reader.readLine()) != null) {
-            	PrivateKey privateKey = Asymmetric.loadPrivateKey("mdProvider"); // You need to implement this method
                 String decryptedData = Asymmetric.decrypt(line, privateKey);
                 
                 System.out.println(lineNumber + ". " + decryptedData);
@@ -54,12 +54,26 @@ public class HealthcareProvider {
             
             System.out.print("Enter the number of the claim you want to verify: ");
             int claimNumber = Integer.parseInt(scanner.nextLine());
+            
+//            storeClaimWithSignature(line);
+            
             // Implement verification logic here
             System.out.println("Claim " + claimNumber + " verified successfully.");
         } catch (IOException | NumberFormatException e) {
             System.err.println("Error verifying health insurance claim: " + e.getMessage());
         }
     }
+    
+//    private void storeClaimWithSignature(String claim) {
+////    	String signature = DigitalSignature.sign()
+//    	
+//        try (FileWriter writer = new FileWriter("signed_insurance_claims.txt", true)) {
+//            writer.write(claim + "\n");
+//            writer.write("Digital Signature: " + signature + "\n\n");
+//        } catch (IOException e) {
+//            System.err.println("Error storing claim with digital signature: " + e.getMessage());
+//        }
+//    }
 
     public String getTreatmentData(String medicalRecord) {
         return treatmentData.getOrDefault(medicalRecord, "No treatment data available.");

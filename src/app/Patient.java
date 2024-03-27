@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.PublicKey;
 import java.util.Scanner;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -39,8 +40,11 @@ public class Patient {
     
     public void fileHealthInsuranceClaim(String diagnosis, String treatment, String[] medications) {
         try (FileWriter writer = new FileWriter("insurance_claims.txt", true)) {
+        	// Generate a unique claim ID
+        	String claimID = UUID.randomUUID().toString();
         	
         	JsonObject claimObject = new JsonObject();
+        	claimObject.addProperty("claimID", claimID);
             claimObject.addProperty("patientID", patientID);
             claimObject.addProperty("diagnosis", diagnosis);
             claimObject.addProperty("treatment", treatment);
