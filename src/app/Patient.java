@@ -43,20 +43,12 @@ public class Patient {
         	// Generate a unique claim ID
         	String claimID = UUID.randomUUID().toString();
         	
-        	JsonObject claimObject = new JsonObject();
-        	claimObject.addProperty("claimID", claimID);
-            claimObject.addProperty("patientID", patientID);
-            claimObject.addProperty("diagnosis", diagnosis);
-            claimObject.addProperty("treatment", treatment);
-            JsonArray medicationsArray = new JsonArray();
-            for (String medication : medications) {
-                medicationsArray.add(medication);
-            }
-            claimObject.add("medications", medicationsArray);
-            claimObject.addProperty("claimStatus", "Pending");
+        	InsuranceClaim claim = new InsuranceClaim(claimID, patientID, diagnosis, treatment, medications, "Pending");
 
+        	String claimJson = claim.toJson();
+        	
             PublicKey medicalProviderPublicKey = Asymmetric.loadPublicKey("mdProvider");
-            String encryptedClaim = Asymmetric.encrypt(claimObject.toString(), medicalProviderPublicKey);
+            String encryptedClaim = Asymmetric.encrypt(claimJson.toString(), medicalProviderPublicKey);
             
             // Write the insurance claim details to the file
             writer.write(encryptedClaim + "\n");

@@ -12,6 +12,7 @@ public class InsuranceClaim {
     private String treatment;
     private String[] medications;
     private String claimStatus;
+    private String signature;
 
     public InsuranceClaim(String claimID, String patientID, String diagnosis, String treatment, String[] medications, String claimStatus) {
         this.claimID = claimID;
@@ -20,6 +21,7 @@ public class InsuranceClaim {
         this.treatment = treatment;
         this.medications = medications;
         this.claimStatus = claimStatus;
+        this.signature = null;
     }
 
     public String getClaimID() {
@@ -44,6 +46,14 @@ public class InsuranceClaim {
 
     public String getClaimStatus() {
         return claimStatus;
+    }
+    
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 
     public String toJson() {
@@ -71,4 +81,23 @@ public class InsuranceClaim {
         String claimStatus = jsonObject.get("claimStatus").getAsString();
         return new InsuranceClaim(claimID, patientID, diagnosis, treatment, medications, claimStatus);
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Claim ID: ").append(claimID).append("\n");
+        sb.append("Patient ID: ").append(patientID).append("\n");
+        sb.append("Diagnosis: ").append(diagnosis).append("\n");
+        sb.append("Treatment: ").append(treatment).append("\n");
+        sb.append("Medications: ");
+        for (int i = 0; i < medications.length; i++) {
+            sb.append(medications[i]);
+            if (i < medications.length - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("\nClaim Status: ").append(claimStatus);
+        return sb.toString();
+    }
+
 }

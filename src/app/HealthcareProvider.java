@@ -1,19 +1,26 @@
 package app;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.io.*;
 import java.security.PrivateKey;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import crypto.Asymmetric;
+import crypto.DigitalSignature;
 import crypto.Symmetric;
 import javax.crypto.SecretKey;
 
 public class HealthcareProvider {
     private Map<String, String> treatmentData; // Key: patient's medical record number, Value: treatment data
     private static final String TREATMENT_FILE = "treatment_records.txt";
+    private static final String CLAIMS_FILE = "insurance_claims.txt";
     private Scanner scanner;
     
     public HealthcareProvider() {
@@ -39,41 +46,56 @@ public class HealthcareProvider {
     }
     
     public void verifyHealthInsuranceClaim() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("insurance_claims.txt"))) {
-            System.out.println("Health Insurance Claims:");
+        try (BufferedReader reader = new BufferedReader(new FileReader(CLAIMS_FILE))) {
+            System.out.println("\n Health Insurance Claims:");
             String line;
-            int lineNumber = 1;
+            List<InsuranceClaim> claims = new ArrayList<>();
             PrivateKey privateKey = Asymmetric.loadPrivateKey("mdProvider");
-            
+
             while ((line = reader.readLine()) != null) {
                 String decryptedData = Asymmetric.decrypt(line, privateKey);
-                
-                System.out.println(lineNumber + ". " + decryptedData);
-                lineNumber++;
+
+                try {
+                    InsuranceClaim claim = new Gson().fromJson(decryptedData, InsuranceClaim.class);
+                    claims.add(claim);
+                } catch (JsonSyntaxException e) {
+                    System.err.println("Error parsing JSON: " + e.getMessage());
+                }
+            }
+
+            // Print out the insurance claims
+            for (int i = 0; i < claims.size(); i++) {
+                System.out.println((i + 1) + ". " + claims.get(i) + "\n");
             }
             
-            System.out.print("Enter the number of the claim you want to verify: ");
+         // Select a claim to sign
+            System.out.print("Enter the number of the claim you want to sign: ");
             int claimNumber = Integer.parseInt(scanner.nextLine());
             
-//            storeClaimWithSignature(line);
+            InsuranceClaim selectedClaim = claims.get(claimNumber - 1);            
+            String claimJson = new Gson().toJson(selectedClaim);
             
-            // Implement verification logic here
-            System.out.println("Claim " + claimNumber + " verified successfully.");
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error verifying health insurance claim: " + e.getMessage());
+            // Sign the selected claim
+            String signature = DigitalSignature.sign(claimJson, privateKey);
+
+            System.out.println("Claim " + selectedClaim.getClaimID() + " signed successfully.");
+            
+            storeClaimWithSignature(claimJson, signature);
+            
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
         }
     }
     
-//    private void storeClaimWithSignature(String claim) {
-////    	String signature = DigitalSignature.sign()
-//    	
-//        try (FileWriter writer = new FileWriter("signed_insurance_claims.txt", true)) {
-//            writer.write(claim + "\n");
-//            writer.write("Digital Signature: " + signature + "\n\n");
-//        } catch (IOException e) {
-//            System.err.println("Error storing claim with digital signature: " + e.getMessage());
-//        }
-//    }
+    private void storeClaimWithSignature(String claimJson, String signature) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("signed_insurance_claims.txt", true))) {
+            writer.write(claimJson + "\n");
+            writer.write("Digital Signature: " + signature + "\n\n");
+            System.out.println("Claim stored with digital signature successfully.");
+        } catch (IOException e) {
+            System.err.println("Error storing claim with digital signature: " + e.getMessage());
+        }
+    }
 
     public String getTreatmentData(String medicalRecord) {
         return treatmentData.getOrDefault(medicalRecord, "No treatment data available.");
