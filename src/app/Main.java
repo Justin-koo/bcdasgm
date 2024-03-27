@@ -29,7 +29,9 @@ public class Main {
                 displayPatientMenu(patient);
                 break;
             case 2:
-                displayHealthcareProviderMenu();
+            	HealthcareProvider provider = new HealthcareProvider();
+            	
+                displayHealthcareProviderMenu(provider);
                 break;
             case 3:
                 displayInsuranceCompanyMenu();
@@ -102,16 +104,15 @@ public class Main {
         }
     }
 
-    private static void displayHealthcareProviderMenu() {
+    private static void displayHealthcareProviderMenu(HealthcareProvider provider) {
         System.out.println("Healthcare Provider Menu");
         System.out.println("1. Update treatment data");
-        System.out.println("2. Go back");
+        System.out.println("2. Verify health insurance claim");
+        System.out.println("3. Go back");
 
         int choice = getUserChoice();
         switch (choice) {
             case 1:
-            	HealthcareProvider provider = new HealthcareProvider();
-
 //            	need to add more parameters: digital signature, who wrote this
                 System.out.print("Enter patient's medical record number: ");
                 String medicalRecord = scanner.nextLine();
@@ -129,16 +130,19 @@ public class Main {
                 provider.updateTreatmentData(medicalRecord, treatmentData, date, patientID);
                 System.out.println("Treatment data updated successfully.");
 
-                displayHealthcareProviderMenu();
+                displayHealthcareProviderMenu(provider);
                 break;
             case 2:
+            	provider.verifyHealthInsuranceClaim();
             	
+            	displayHealthcareProviderMenu(provider);
+            	break;
             case 3:
                 displayRoleSelectionMenu();
                 break;
             default:
                 System.out.println("Invalid choice. Please try again.");
-                displayHealthcareProviderMenu();
+                displayHealthcareProviderMenu(provider);
         }
     }
 
