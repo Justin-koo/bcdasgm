@@ -24,6 +24,18 @@ public class Asymmetric {
             return null;
         }
     }
+    
+    public static String encryptSymmetricKey(SecretKey symmetricKey, PublicKey publicKey) {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] encryptedKeyBytes = cipher.doFinal(symmetricKey.getEncoded());
+            return Base64.getEncoder().encodeToString(encryptedKeyBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     // Method to perform encryption using RSA algorithm and public key
     public static String encrypt(String data, PublicKey publicKey) {
@@ -58,11 +70,11 @@ public class Asymmetric {
     }
     
  // Method to store a key pair for a specific patient
-    public static void storeKeyForPatient(KeyPair keyPair, String patientID) {
-        File patientFolder = new File(CRYPTO_FOLDER, patientID);
+    public static void storeKey(KeyPair keyPair, String userID) {
+        File patientFolder = new File(CRYPTO_FOLDER, userID);
         if (!patientFolder.exists()) {
             if (!patientFolder.mkdirs()) {
-                System.err.println("Failed to create folder for patient: " + patientID);
+                System.err.println("Failed to create folder for patient: " + userID);
                 return;
             }
         }
@@ -81,13 +93,13 @@ public class Asymmetric {
                 oos.writeObject(keyPair.getPrivate());
             }
 
-            System.out.println("Keys for patient " + patientID + " stored successfully.");
+            System.out.println("Keys for patient " + userID + " stored successfully.");
         } catch (IOException e) {
-            System.err.println("Error storing keys for patient " + patientID + ": " + e.getMessage());
+            System.err.println("Error storing keys for patient " + userID + ": " + e.getMessage());
         }
     }
     
- // Method to load the public key for a specific patient
+ // Method to load the public key
     public static PublicKey loadPublicKey(String userID) {
         File publicKeyFile = new File(CRYPTO_FOLDER + File.separator + userID, "public.key");
         if (!publicKeyFile.exists()) {
@@ -103,7 +115,7 @@ public class Asymmetric {
         }
     }
 
-    // Method to load the private key for a specific patient
+    // Method to load the private keyt
     public static PrivateKey loadPrivateKey(String userID) {
         File privateKeyFile = new File(CRYPTO_FOLDER + File.separator + userID, "private.key");
         if (!privateKeyFile.exists()) {

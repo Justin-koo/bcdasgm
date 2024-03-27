@@ -23,7 +23,7 @@ public class Patient {
     }
     
     public void viewMedicalRecords() {
-    	SecretKey loadedKey = Symmetric.loadKey();
+    	SecretKey loadedKey = Symmetric.loadKey("MedicalRecord");
     	
         try (BufferedReader reader = new BufferedReader(new FileReader("treatment_records.txt"))) {
             String line;
@@ -47,7 +47,7 @@ public class Patient {
 
         	String claimJson = claim.toJson();
         	
-            PublicKey medicalProviderPublicKey = Asymmetric.loadPublicKey("mdProvider");
+            PublicKey medicalProviderPublicKey = Asymmetric.loadPublicKey("HealthcareProvider");
             String encryptedClaim = Asymmetric.encrypt(claimJson.toString(), medicalProviderPublicKey);
             
             // Write the insurance claim details to the file

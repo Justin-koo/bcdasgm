@@ -8,10 +8,10 @@ public class createSecret {
 	public static void main(String[] args) {
         // Generate a symmetric encryption key
 		SecretKey key = Symmetric.generateKey();
-        Symmetric.storeKey(key);
+        Symmetric.storeKey("InsuranceClaim", key);
 
         // Load the symmetric encryption key
-        SecretKey loadedKey = Symmetric.loadKey();
+        SecretKey loadedKey = Symmetric.loadKey("InsuranceClaim");
 
         if (loadedKey != null) {
             // Test encryption and decryption with the loaded key

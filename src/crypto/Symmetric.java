@@ -5,22 +5,20 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Symmetric {
-	private static final String CRYPTO_FOLDER = "Crypto";
+    private static final String CRYPTO_FOLDER = "Crypto";
     private static final String SECRET_FOLDER = "Secret";
-    private static final String KEY_FILE = "symmetric.key";
-    
-    // Method to generate a symmetric encryption key using AES algorithm
+
+    private static final Map<String, SecretKey> keyMap = new HashMap<>();
+
+    // Method to generate a new symmetric encryption key
     public static SecretKey generateKey() {
         try {
-            // Create a KeyGenerator object for AES algorithm
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-
-            // Generate a 128-bit AES key
             keyGen.init(128);
-
-            // Generate the key
             return keyGen.generateKey();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -28,14 +26,11 @@ public class Symmetric {
         }
     }
 
-    // Method to encrypt data using AES algorithm and the provided key
+    // Method to encrypt data using a specified key
     public static String encrypt(String data, SecretKey key) {
         try {
-            // Create a Cipher object for AES encryption
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.ENCRYPT_MODE, key);
-
-            // Encrypt the data
             byte[] encryptedBytes = cipher.doFinal(data.getBytes());
             return Base64.getEncoder().encodeToString(encryptedBytes);
         } catch (Exception e) {
@@ -44,14 +39,11 @@ public class Symmetric {
         }
     }
 
-    // Method to decrypt data using AES algorithm and the provided key
+    // Method to decrypt data using a specified key
     public static String decrypt(String encryptedData, SecretKey key) {
         try {
-            // Create a Cipher object for AES decryption
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, key);
-
-            // Decrypt the data
             byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
             return new String(decryptedBytes);
         } catch (Exception e) {
@@ -59,32 +51,47 @@ public class Symmetric {
             return null;
         }
     }
-    
- // Method to store the symmetric encryption key in a file
-    public static void storeKey(SecretKey key) {
+
+    // Method to store a symmetric encryption key with a specified name
+    public static void storeKey(String keyName, SecretKey key) {
+        keyMap.put(keyName, key);
+        
         File folder = new File(CRYPTO_FOLDER + File.separator + SECRET_FOLDER);
         if (!folder.exists()) {
             folder.mkdirs();
         }
 
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(folder, KEY_FILE)))) {
+        File keyFile = new File(folder, keyName + ".key");
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(keyFile))) {
             oos.writeObject(key);
-            System.out.println("Symmetric key stored successfully.");
+            System.out.println("Symmetric key '" + keyName + "' stored successfully.");
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Error storing symmetric key: " + e.getMessage());
+            System.err.println("Error storing symmetric key '" + keyName + "': " + e.getMessage());
         }
     }
 
-    // Method to load the symmetric encryption key from a file
-    public static SecretKey loadKey() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(CRYPTO_FOLDER + File.separator + SECRET_FOLDER + File.separator + KEY_FILE))) {
-            return (SecretKey) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            System.err.println("Error loading symmetric key: " + e.getMessage());
-            return null;
+    // Method to load a symmetric encryption key with a specified name
+    public static SecretKey loadKey(String keyName) {
+        if (!keyMap.containsKey(keyName)) {
+            File keyFile = new File(CRYPTO_FOLDER + File.separator + SECRET_FOLDER, keyName + ".key");
+            if (!keyFile.exists()) {
+                System.err.println("Symmetric key file '" + keyName + ".key' not found.");
+                return null;
+            }
+
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(keyFile))) {
+                SecretKey key = (SecretKey) ois.readObject();
+                keyMap.put(keyName, key);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+                System.err.println("Error loading symmetric key '" + keyName + "': " + e.getMessage());
+                return null;
+            }
         }
+        return keyMap.get(keyName);
     }
+
 }
 

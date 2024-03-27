@@ -1,4 +1,4 @@
-package app;
+package simulate;
 
 import java.security.KeyPair;
 
@@ -10,9 +10,8 @@ public class AsymmetricTest {
         KeyPair keyPair = Asymmetric.generateKeyPair();
 
         // Test storing keys for a patient
-        String patientID = "Patient123";
-        Asymmetric.storeKeyForPatient(keyPair, patientID);
+        String name = "insurance_company";
+        Asymmetric.storeKey(keyPair, name);
 
-        // Additional testing (encryption, decryption, etc.) can be performed here
     }
 }

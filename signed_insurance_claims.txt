@@ -1,3 +1,0 @@
-{"claimID":"f4c4ab38-1f22-4fa8-8edb-d22ee5bd78f7","patientID":"222","diagnosis":"2","treatment":"2","medications":["2"],"claimStatus":"Pending"}
-Digital Signature: JDMPdj6HvSd6xL5UmRWM6MkrJQRzI70KVRAkhYSbfz+wOxBACgAnuYzJqFyljeGZomMYsruKgdxDQx0UAg50o6rylw6fIF+FKy40VhlV6XgKzvp/d8O9UHEEJ3KH4Kth36/i9diJ1pS35uzGnPW+q25bf13wxiTcMOeBGBNE6aTJBvBakoxILcHSCv8tYU9OVYLth1GG+J/Gtp2eqqBGQsE3JW9mQYBjItkvfGskgyM/DtAWPkPHxa2ut39t8dfeMaDIrbPof5r2yhpqnNPZs3IKv985r54wcFd6f8OndihBMOHHfib+vPmm178SxnVlqf5F5FEzKKpjcrPLanKBhg==
-

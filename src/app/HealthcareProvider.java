@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.io.*;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -21,6 +22,7 @@ public class HealthcareProvider {
     private Map<String, String> treatmentData; // Key: patient's medical record number, Value: treatment data
     private static final String TREATMENT_FILE = "treatment_records.txt";
     private static final String CLAIMS_FILE = "insurance_claims.txt";
+    private static final String SIGNED_FILE = "signatures.txt";
     private Scanner scanner;
     
     public HealthcareProvider() {
@@ -35,7 +37,7 @@ public class HealthcareProvider {
             String jsonRecord = gson.toJson(record);
             
          // Load the symmetric encryption key
-            SecretKey loadedKey = Symmetric.loadKey();
+            SecretKey loadedKey = Symmetric.loadKey("MedicalRecord");
             String encryptedData = Symmetric.encrypt(jsonRecord, loadedKey);
             
             writer.write(encryptedData + "\n");
@@ -50,7 +52,7 @@ public class HealthcareProvider {
             System.out.println("\n Health Insurance Claims:");
             String line;
             List<InsuranceClaim> claims = new ArrayList<>();
-            PrivateKey privateKey = Asymmetric.loadPrivateKey("mdProvider");
+            PrivateKey privateKey = Asymmetric.loadPrivateKey("HealthcareProvider");
 
             while ((line = reader.readLine()) != null) {
                 String decryptedData = Asymmetric.decrypt(line, privateKey);
@@ -80,17 +82,37 @@ public class HealthcareProvider {
 
             System.out.println("Claim " + selectedClaim.getClaimID() + " signed successfully.");
             
-            storeClaimWithSignature(claimJson, signature);
+            storeClaimWithSignature(selectedClaim.getClaimID(), signature);
             
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
         }
     }
     
-    private void storeClaimWithSignature(String claimJson, String signature) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("signed_insurance_claims.txt", true))) {
-            writer.write(claimJson + "\n");
-            writer.write("Digital Signature: " + signature + "\n\n");
+    private void storeClaimWithSignature(String claimID, String signature) {
+    	try (BufferedWriter writer = new BufferedWriter(new FileWriter(SIGNED_FILE, true))) {
+            // Create a JSON object for the signed claim
+            JsonObject signedClaim = new JsonObject();
+            signedClaim.addProperty("claimID", claimID);
+            signedClaim.addProperty("signature", signature);
+
+            // Convert the JSON object to a string
+            String signedClaimJson = signedClaim.toString();
+            
+            SecretKey symmetricKey = Symmetric.generateKey();
+            String encryptedSymmetricClaim  = Symmetric.encrypt(signedClaimJson, symmetricKey);
+            
+            PublicKey insuranceCompanyPublicKey = Asymmetric.loadPublicKey("InsuranceCompany");
+            String encryptedSymmetricKey = Asymmetric.encryptSymmetricKey(symmetricKey, insuranceCompanyPublicKey);
+
+            // Construct a JSON object for the encrypted claim and the encrypted symmetric key
+            JsonObject encryptedClaimObject = new JsonObject();
+            encryptedClaimObject.addProperty("encryptedSymmetricKey", encryptedSymmetricKey);
+            encryptedClaimObject.addProperty("encryptedData", encryptedSymmetricClaim);
+            String encryptedClaim = encryptedClaimObject.toString();
+            
+            // Write the signed claim JSON string to the file
+            writer.write(encryptedClaim + "\n");
             System.out.println("Claim stored with digital signature successfully.");
         } catch (IOException e) {
             System.err.println("Error storing claim with digital signature: " + e.getMessage());
