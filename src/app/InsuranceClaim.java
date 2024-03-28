@@ -12,7 +12,6 @@ public class InsuranceClaim {
     private String treatment;
     private String[] medications;
     private String claimStatus;
-    private String signature;
 
     public InsuranceClaim(String claimID, String patientID, String diagnosis, String treatment, String[] medications, String claimStatus) {
         this.claimID = claimID;
@@ -21,7 +20,6 @@ public class InsuranceClaim {
         this.treatment = treatment;
         this.medications = medications;
         this.claimStatus = claimStatus;
-        this.signature = null;
     }
 
     public String getClaimID() {
@@ -48,14 +46,10 @@ public class InsuranceClaim {
         return claimStatus;
     }
     
-    public String getSignature() {
-        return signature;
+    public void setClaimStatus(String claimStatus) {
+        this.claimStatus = claimStatus;
     }
-
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
-
+    
     public String toJson() {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
@@ -82,7 +76,7 @@ public class InsuranceClaim {
         return new InsuranceClaim(claimID, patientID, diagnosis, treatment, medications, claimStatus);
     }
     
-    @Override
+//    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Claim ID: ").append(claimID).append("\n");

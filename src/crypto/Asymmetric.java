@@ -24,18 +24,6 @@ public class Asymmetric {
             return null;
         }
     }
-    
-    public static String encryptSymmetricKey(SecretKey symmetricKey, PublicKey publicKey) {
-        try {
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            byte[] encryptedKeyBytes = cipher.doFinal(symmetricKey.getEncoded());
-            return Base64.getEncoder().encodeToString(encryptedKeyBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     // Method to perform encryption using RSA algorithm and public key
     public static String encrypt(String data, PublicKey publicKey) {

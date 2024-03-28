@@ -12,7 +12,7 @@ public class Main {
     }
 
     private static void displayRoleSelectionMenu() {
-        System.out.println("Welcome to the Healthcare System CLI");
+        System.out.println("\nWelcome to the Healthcare System CLI");
         System.out.println("Please select your role:");
         System.out.println("1. Patient/Consumer");
         System.out.println("2. Healthcare Provider");
@@ -29,8 +29,6 @@ public class Main {
                 displayPatientMenu(patient);
                 break;
             case 2:
-            	HealthcareProvider provider = new HealthcareProvider();
-            	
                 displayHealthcareProviderMenu(provider);
                 break;
             case 3:
@@ -61,7 +59,7 @@ public class Main {
     }
 
     private static void displayPatientMenu(Patient patient) {
-        System.out.println("Patient/Consumer Menu");
+        System.out.println("\nPatient/Consumer Menu");
         System.out.println("1. View medical records");
         System.out.println("2. File health insurance claim");
         System.out.println("3. View insurance claim status");
@@ -105,7 +103,7 @@ public class Main {
     }
 
     private static void displayHealthcareProviderMenu(HealthcareProvider provider) {
-        System.out.println("Healthcare Provider Menu");
+        System.out.println("\nHealthcare Provider Menu");
         System.out.println("1. Update treatment data");
         System.out.println("2. Verify health insurance claim");
         System.out.println("3. Go back");
@@ -147,16 +145,15 @@ public class Main {
     }
 
     private static void displayInsuranceCompanyMenu() {
-        System.out.println("Insurance Company Menu");
+        System.out.println("\nInsurance Company Menu");
         System.out.println("1. Process insurance claim");
         System.out.println("2. Go back");
 
         int choice = getUserChoice();
         switch (choice) {
             case 1:
-            	InsuranceCompany insuranceCompany = new InsuranceCompany();
                 insuranceCompany.processInsuranceClaim();
-            	
+                
             	displayInsuranceCompanyMenu();
                 break;
             case 2:

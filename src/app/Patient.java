@@ -47,8 +47,11 @@ public class Patient {
 
         	String claimJson = claim.toJson();
         	
-            PublicKey medicalProviderPublicKey = Asymmetric.loadPublicKey("HealthcareProvider");
-            String encryptedClaim = Asymmetric.encrypt(claimJson.toString(), medicalProviderPublicKey);
+        	SecretKey loadedKey = Symmetric.loadKey("InsuranceClaim");
+            String encryptedClaim = Symmetric.encrypt(claimJson.toString(), loadedKey);
+        	
+//            PublicKey medicalProviderPublicKey = Asymmetric.loadPublicKey("HealthcareProvider");
+//            String encryptedClaim = Asymmetric.encrypt(claimJson.toString(), medicalProviderPublicKey);
             
             // Write the insurance claim details to the file
             writer.write(encryptedClaim + "\n");

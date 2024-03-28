@@ -10,8 +10,6 @@ import java.security.PublicKey;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 
 import crypto.Asymmetric;
 import crypto.DigitalSignature;
@@ -36,7 +34,7 @@ public class HealthcareProvider {
             TreatmentRecord record = new TreatmentRecord(medicalRecord, treatment, date, patientID);
             String jsonRecord = gson.toJson(record);
             
-         // Load the symmetric encryption key
+            // Load the symmetric encryption key
             SecretKey loadedKey = Symmetric.loadKey("MedicalRecord");
             String encryptedData = Symmetric.encrypt(jsonRecord, loadedKey);
             
@@ -49,40 +47,42 @@ public class HealthcareProvider {
     
     public void verifyHealthInsuranceClaim() {
         try (BufferedReader reader = new BufferedReader(new FileReader(CLAIMS_FILE))) {
-            System.out.println("\n Health Insurance Claims:");
+            System.out.println("\nHealth Insurance Claims:");
             String line;
             List<InsuranceClaim> claims = new ArrayList<>();
             PrivateKey privateKey = Asymmetric.loadPrivateKey("HealthcareProvider");
+            SecretKey loadedKey = Symmetric.loadKey("InsuranceClaim");
+            int i = 0;
 
             while ((line = reader.readLine()) != null) {
-                String decryptedData = Asymmetric.decrypt(line, privateKey);
-
-                try {
-                    InsuranceClaim claim = new Gson().fromJson(decryptedData, InsuranceClaim.class);
-                    claims.add(claim);
-                } catch (JsonSyntaxException e) {
-                    System.err.println("Error parsing JSON: " + e.getMessage());
+//                String decryptedData = Asymmetric.decrypt(line, privateKey);
+                String decryptedData = Symmetric.decrypt(line, loadedKey);
+                InsuranceClaim claim = new Gson().fromJson(decryptedData, InsuranceClaim.class);
+                
+                if(claim.getClaimStatus().equals("Pending")) {
+                	System.out.println((i + 1) + ". " + claim + "\n");
+	                claims.add(claim);
+	                i++;
                 }
+                
             }
-
-            // Print out the insurance claims
-            for (int i = 0; i < claims.size(); i++) {
-                System.out.println((i + 1) + ". " + claims.get(i) + "\n");
+            if(claims.size() > 0) {
+            	// Select a claim to sign
+	            System.out.print("Enter the number of the claim you want to sign: ");
+	            int claimNumber = Integer.parseInt(scanner.nextLine());
+	            
+	            InsuranceClaim selectedClaim = claims.get(claimNumber - 1);            
+	            String claimJson = new Gson().toJson(selectedClaim);
+	            
+	            // Sign the selected claim
+	            String signature = DigitalSignature.sign(claimJson, privateKey);
+	
+	            System.out.println("Claim " + selectedClaim.getClaimID() + " signed successfully.");
+	            
+	            storeClaimWithSignature(selectedClaim.getClaimID(), signature);
+            } else {
+            	System.out.println("No available claims");
             }
-            
-         // Select a claim to sign
-            System.out.print("Enter the number of the claim you want to sign: ");
-            int claimNumber = Integer.parseInt(scanner.nextLine());
-            
-            InsuranceClaim selectedClaim = claims.get(claimNumber - 1);            
-            String claimJson = new Gson().toJson(selectedClaim);
-            
-            // Sign the selected claim
-            String signature = DigitalSignature.sign(claimJson, privateKey);
-
-            System.out.println("Claim " + selectedClaim.getClaimID() + " signed successfully.");
-            
-            storeClaimWithSignature(selectedClaim.getClaimID(), signature);
             
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
@@ -91,28 +91,20 @@ public class HealthcareProvider {
     
     private void storeClaimWithSignature(String claimID, String signature) {
     	try (BufferedWriter writer = new BufferedWriter(new FileWriter(SIGNED_FILE, true))) {
+    		
+    		PublicKey insuranceCompanyPublicKey = Asymmetric.loadPublicKey("InsuranceCompany");
+    		String encryptedClaimID  = Asymmetric.encrypt(claimID, insuranceCompanyPublicKey);
+    		
             // Create a JSON object for the signed claim
             JsonObject signedClaim = new JsonObject();
-            signedClaim.addProperty("claimID", claimID);
+            signedClaim.addProperty("claimID", encryptedClaimID);
             signedClaim.addProperty("signature", signature);
 
             // Convert the JSON object to a string
             String signedClaimJson = signedClaim.toString();
             
-            SecretKey symmetricKey = Symmetric.generateKey();
-            String encryptedSymmetricClaim  = Symmetric.encrypt(signedClaimJson, symmetricKey);
-            
-            PublicKey insuranceCompanyPublicKey = Asymmetric.loadPublicKey("InsuranceCompany");
-            String encryptedSymmetricKey = Asymmetric.encryptSymmetricKey(symmetricKey, insuranceCompanyPublicKey);
-
-            // Construct a JSON object for the encrypted claim and the encrypted symmetric key
-            JsonObject encryptedClaimObject = new JsonObject();
-            encryptedClaimObject.addProperty("encryptedSymmetricKey", encryptedSymmetricKey);
-            encryptedClaimObject.addProperty("encryptedData", encryptedSymmetricClaim);
-            String encryptedClaim = encryptedClaimObject.toString();
-            
             // Write the signed claim JSON string to the file
-            writer.write(encryptedClaim + "\n");
+            writer.write(signedClaimJson + "\n");
             System.out.println("Claim stored with digital signature successfully.");
         } catch (IOException e) {
             System.err.println("Error storing claim with digital signature: " + e.getMessage());
