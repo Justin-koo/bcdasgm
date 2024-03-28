@@ -92,6 +92,10 @@ public class Symmetric {
         }
         return keyMap.get(keyName);
     }
+    
+    public static String keyToString(SecretKey key) {
+        return Base64.getEncoder().encodeToString(key.getEncoded());
+    }
 
 }
 
