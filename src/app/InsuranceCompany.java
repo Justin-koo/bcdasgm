@@ -2,9 +2,15 @@ package app;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -14,10 +20,13 @@ import java.util.Scanner;
 import javax.crypto.SecretKey;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import crypto.Asymmetric;
 import crypto.DigitalSignature;
 import crypto.Symmetric;
+import blockchain.Block;
+import blockchain.Blockchain;
 
 public class InsuranceCompany {
     private static final String SIGNED_FILE = "signatures.txt";
@@ -25,12 +34,17 @@ public class InsuranceCompany {
     private SecretKey loadedKey;
     private Scanner scanner;
     List<InsuranceClaim> claims;
+    protected Blockchain blockchain; 
+    private static final String BLOCKCHAIN_FILE = "blockchain.txt";
 
     public InsuranceCompany() {
         loadedKey = Symmetric.loadKey("InsuranceClaim");
         this.scanner = new Scanner(System.in);
         claims = new ArrayList<>();
+        blockchain = loadBlockchain();
     }
+    
+    private static boolean isBlockchainModified = false;
 
     public void processInsuranceClaim() {
         try (BufferedReader reader = new BufferedReader(new FileReader(CLAIMS_FILE))){
@@ -76,7 +90,7 @@ public class InsuranceCompany {
 	                        String claimJson = new Gson().toJson(selectedClaim);
 	                        String newSignature = DigitalSignature.sign(claimJson, Asymmetric.loadPrivateKey("InsuranceCompany"));
 	                        updateSignature(selectedClaim.getClaimID(), newSignature);
-	                        
+           
 	                        break;
 	                        
 	                    } else {
@@ -96,6 +110,14 @@ public class InsuranceCompany {
         } catch (IOException | NumberFormatException e) {
             System.err.println("Error processing insurance claims: " + e.getMessage());
         }
+    }
+    
+    private void addClaimToBlockchain(InsuranceClaim claim) {
+        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash());
+        blockchain.addBlock(newBlock);
+        System.out.println("Claim added to blockchain successfully.");
+        isBlockchainModified = true;  // Set flag to true
+        saveBlockchain(blockchain);  // Save the updated blockchain
     }
     
     private void updateSignature(String claimID, String newSignature) {
@@ -171,6 +193,17 @@ public class InsuranceCompany {
                     selectedClaim.setClaimStatus("Approved");
                     System.out.println("Claim approved.");
                     validInput = true; // Exit the loop
+
+                    // Add the claim to the blockchain
+                    addClaimToBlockchain(selectedClaim);
+
+                    // Update the digital signature
+                    String claimJson = new Gson().toJson(selectedClaim);
+                    String newSignature = DigitalSignature.sign(claimJson, Asymmetric.loadPrivateKey("InsuranceCompany"));
+                    updateSignature(selectedClaim.getClaimID(), newSignature);
+
+                    break;
+
                 } else if (approval.equals("N")) {
                     selectedClaim.setClaimStatus("Rejected");
                     System.out.println("Claim rejected.");
@@ -197,6 +230,9 @@ public class InsuranceCompany {
 
 
 
+
+
+
     private void rewriteClaimsToFile(List<InsuranceClaim> claims) throws IOException {
         try (FileWriter writer = new FileWriter(CLAIMS_FILE)) {
             for (InsuranceClaim claim : claims) {
@@ -207,7 +243,61 @@ public class InsuranceCompany {
             System.out.println("Claims file updated successfully.");
         }
     }
+   
 
-    // Other methods as needed
+    public static Blockchain loadBlockchain() {
+        Blockchain blockchain = new Blockchain();
+        File blockchainFile = new File(BLOCKCHAIN_FILE);
+        
+        if (blockchainFile.exists() && blockchainFile.length() > 0) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(BLOCKCHAIN_FILE))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    Block block = Block.fromString(line, blockchain.getBlockchain());
+                    if (block != null) {
+                        blockchain.addBlock(block);
+                    }
+                }
+                System.out.println("Blockchain loaded successfully from " + BLOCKCHAIN_FILE);
+            } catch (IOException e) {
+                System.err.println("Error loading blockchain: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Blockchain file not found or empty. Creating new blockchain.");
+        }
+        
+        return blockchain;
+    }
+
+
+
+    public void addBlock(Block newBlock) {
+        if (blockchain.getBlockchain().isEmpty()) {
+            newBlock.setPreviousHash("0");  // Set previous hash to "0" for the first block
+        } else {
+            newBlock.setPreviousHash(blockchain.getLatestBlock().getHash());
+        }
+        newBlock.setHash(newBlock.calculateHash());
+        blockchain.addBlock(newBlock);  // Using addBlock() method from the Blockchain class
+        isBlockchainModified = true;  // Set flag to true
+        saveBlockchain(blockchain);  // Save the updated blockchain to file
+    }
+
+
+
+    private static void saveBlockchain(Blockchain blockchain) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BLOCKCHAIN_FILE))) {
+            ArrayList<Block> blocks = blockchain.getBlockchain(); 
+            for (Block block : blocks) {
+                writer.write(block.toString());
+                writer.newLine();  
+            }
+            System.out.println("Blockchain saved successfully to " + BLOCKCHAIN_FILE);
+            isBlockchainModified = false;  
+        } catch (IOException e) {
+            System.err.println("Error saving blockchain: " + e.getMessage());
+        }
+    }
+
+
 }
-

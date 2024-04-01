@@ -1,6 +1,8 @@
 package blockchain;
 
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Block {
@@ -18,10 +20,10 @@ public class Block {
         this.hash = calculateHash(); // Making sure we do this after we set the other values.
     }
 
-    // Calculate new hash based on blocks contents.
+    // Calculate new hash based on blocks contents using SHA-1.
     public String calculateHash() {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
             
             // Concatenate data, previousHash, and timeStamp to form input string.
             String input = previousHash + Long.toString(timeStamp) + data;
@@ -43,6 +45,45 @@ public class Block {
         }
     }
     
+    // Convert timestamp to human-readable format
+    public String getReadableTimeStamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date(this.timeStamp);
+        return sdf.format(date);
+    }
+    
+    // Convert string representation of a block back to a Block object
+    public static Block fromString(String blockString, ArrayList<Block> blockchain) {
+        try {
+            String[] parts = blockString.split(", ");
+            String hash = parts[0].substring(parts[0].indexOf("'") + 1, parts[0].lastIndexOf("'"));
+            String previousHash = parts[1].substring(parts[1].indexOf("'") + 1, parts[1].lastIndexOf("'"));
+            String data = parts[2].substring(parts[2].indexOf("'") + 1, parts[2].lastIndexOf("'"));
+            
+            // Extract the timestamp value correctly
+            long timeStamp = Long.parseLong(parts[3].substring(parts[3].indexOf("=") + 1, parts[3].lastIndexOf("}")));
+            
+            Block block = new Block(data, previousHash);
+            block.setHash(hash);
+            block.setTimeStamp(timeStamp);
+            
+            return block;
+        } catch (Exception e) {
+            System.err.println("Error parsing block: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+
+
+
+    @Override
+    public String toString() {
+        return "Block{hash='" + hash + "', previousHash='" + previousHash + "', data='" + data + "', timeStamp=" + timeStamp + "}";
+    }
+
+
     // Getters and setters:
 
     public String getHash() {
