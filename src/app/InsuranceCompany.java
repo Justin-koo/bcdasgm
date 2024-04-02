@@ -246,16 +246,23 @@ public class InsuranceCompany {
    
 
     public static Blockchain loadBlockchain() {
-        Blockchain blockchain = new Blockchain();
+    	Blockchain blockchain = null;
+    	ArrayList<Block> existingBlocks = new ArrayList<>(); 
+
+//        Blockchain blockchain = new Blockchain();
         File blockchainFile = new File(BLOCKCHAIN_FILE);
         
         if (blockchainFile.exists() && blockchainFile.length() > 0) {
+        	blockchain = new Blockchain();
+        	
             try (BufferedReader reader = new BufferedReader(new FileReader(BLOCKCHAIN_FILE))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     Block block = Block.fromString(line, blockchain.getBlockchain());
                     if (block != null) {
-                        blockchain.addBlock(block);
+//                    	System.out.println("222" + block);
+                    	existingBlocks.add(block);
+//                        blockchain.addBlock(block);
                     }
                 }
                 System.out.println("Blockchain loaded successfully from " + BLOCKCHAIN_FILE);
@@ -264,9 +271,10 @@ public class InsuranceCompany {
             }
         } else {
             System.out.println("Blockchain file not found or empty. Creating new blockchain.");
+            blockchain = Blockchain.createGenesis();
         }
         
-        return blockchain;
+        return new Blockchain(existingBlocks);
     }
 
 

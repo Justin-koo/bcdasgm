@@ -27,8 +27,8 @@ public class InsuranceClaim {
         this.claimStatus = claimStatus;
         
         // Create and add the claim as a new block in the blockchain
-        Block newBlock = new Block(toJson(), blockchain.getLatestBlock().getHash());
-        blockchain.addBlock(newBlock);
+//        Block newBlock = new Block(toJson(), blockchain.getLatestBlock().getHash());
+//        blockchain.addBlock(newBlock);
     }
 
     public String getClaimID() {

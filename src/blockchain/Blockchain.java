@@ -12,15 +12,28 @@ public class Blockchain implements Serializable{
     public Blockchain() {
         this.blockchain = new ArrayList<>();
         // Create the genesis block (the first block in the blockchain).
-        if (blockchain.isEmpty()) {
-	        // If the blockchain is empty, create the genesis block
-	        Block genesisBlock = new Block("Genesis Block", "0");
-	        blockchain.add(genesisBlock);
-	    }
+//        if (blockchain.isEmpty()) {
+//	        // If the blockchain is empty, create the genesis block
+//	        Block genesisBlock = new Block("Genesis Block", "0");
+//	        blockchain.add(genesisBlock);
+//	    }
+    }
+    
+    public Blockchain(ArrayList<Block> blocks) {
+        this.blockchain = blocks;
+    }
+    
+    public static Blockchain createGenesis() {
+    	Blockchain blockchain = new Blockchain();
+        Block genesisBlock = new Block("Genesis Block", "0");
+        blockchain.addBlock(genesisBlock);
+        return blockchain;
     }
 
     // Method to add a new block to the blockchain.
     public void addBlock(Block newBlock) {
+    	System.out.println(getLatestBlock().getHash());
+    	
         newBlock.setPreviousHash(getLatestBlock().getHash());
         
         newBlock.setHash(newBlock.calculateHash());
