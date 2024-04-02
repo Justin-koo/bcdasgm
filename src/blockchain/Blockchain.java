@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import com.google.gson.GsonBuilder;
 
 public class Blockchain implements Serializable{
 

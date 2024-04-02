@@ -1,7 +1,6 @@
 package crypto;
 
 import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
