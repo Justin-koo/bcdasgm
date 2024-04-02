@@ -1,5 +1,11 @@
 package blockchain;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import com.google.gson.GsonBuilder;
@@ -7,27 +13,38 @@ import com.google.gson.GsonBuilder;
 public class Blockchain implements Serializable{
 
     private ArrayList<Block> blockchain;
+    private static final String BLOCKCHAIN_FILE = "blockchain.txt";
 
     // Blockchain Constructor.
     public Blockchain() {
-        this.blockchain = new ArrayList<>();
-        // Create the genesis block (the first block in the blockchain).
-//        if (blockchain.isEmpty()) {
-//	        // If the blockchain is empty, create the genesis block
-//	        Block genesisBlock = new Block("Genesis Block", "0");
-//	        blockchain.add(genesisBlock);
-//	    }
+        File blockchainFile = new File(BLOCKCHAIN_FILE);
+        
+        if (blockchainFile.exists() && blockchainFile.length() > 0) {
+        	this.blockchain = new ArrayList<>();
+        	
+            try (BufferedReader reader = new BufferedReader(new FileReader(BLOCKCHAIN_FILE))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    Block block = Block.fromString(line, getBlockchain());
+                    if (block != null) {
+//                    	System.out.println("222" + block);
+                    	blockchain.add(block);
+//                        blockchain.addBlock(block);
+                    }
+                }
+                System.out.println("Blockchain loaded successfully from " + BLOCKCHAIN_FILE);
+            } catch (IOException e) {
+                System.err.println("Error loading blockchain: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Blockchain file not found or empty. Creating new blockchain.");
+            Block genesisBlock = new Block("Genesis Block", "0");
+            addBlock(genesisBlock);
+        }
     }
     
     public Blockchain(ArrayList<Block> blocks) {
         this.blockchain = blocks;
-    }
-    
-    public static Blockchain createGenesis() {
-    	Blockchain blockchain = new Blockchain();
-        Block genesisBlock = new Block("Genesis Block", "0");
-        blockchain.addBlock(genesisBlock);
-        return blockchain;
     }
 
     // Method to add a new block to the blockchain.
@@ -115,14 +132,6 @@ public class Blockchain implements Serializable{
         return blockchain;
     }
 
-
-
-
-
-
-
-
-
     @Override
     public String toString() {
         StringBuilder blockchainString = new StringBuilder();
@@ -139,6 +148,19 @@ public class Blockchain implements Serializable{
     
     public ArrayList<Block> getBlockchain() {
         return blockchain;
+    }
+    
+    public static void saveBlockchain(Blockchain blockchain) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BLOCKCHAIN_FILE))) {
+            ArrayList<Block> blocks = blockchain.getBlockchain(); 
+            for (Block block : blocks) {
+                writer.write(block.toString());
+                writer.newLine();  
+            }
+            System.out.println("Blockchain saved successfully to " + BLOCKCHAIN_FILE);
+        } catch (IOException e) {
+            System.err.println("Error saving blockchain: " + e.getMessage());
+        }
     }
 
 

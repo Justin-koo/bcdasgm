@@ -60,21 +60,15 @@ public class Main {
 
     private static void displayPatientMenu(Patient patient) {
         System.out.println("\nPatient/Consumer Menu");
-        System.out.println("1. View medical records");
-        System.out.println("2. File health insurance claim");
-        System.out.println("3. View insurance claim status");
-        System.out.println("4. Go back");
+        System.out.println("1. File health insurance claim");
+        System.out.println("2. View insurance claim status");
+        System.out.println("3. Go back");
 
         int choice = getUserChoice();
         
         switch (choice) {
             case 1:
-            	patient.viewMedicalRecords();
-            	
-            	displayPatientMenu(patient);
-                break;
-            case 2:
-            	System.out.print("Enter diagnosis: ");
+                System.out.print("Enter diagnosis: ");
                 String diagnosis = scanner.nextLine();
                 
                 System.out.print("Enter treatment: ");
@@ -85,15 +79,15 @@ public class Main {
 
                 // File the health insurance claim with the collected details
                 patient.fileHealthInsuranceClaim(diagnosis, treatment, medications);
-            	
-            	displayPatientMenu(patient);
+                
+                displayPatientMenu(patient);
+                break;
+            case 2:
+                patient.viewInsuranceClaimStatus();
+                
+                displayPatientMenu(patient);
                 break;
             case 3:
-            	patient.viewInsuranceClaimStatus();
-            	
-            	displayPatientMenu(patient);
-                break;
-            case 4:
                 displayRoleSelectionMenu();
                 break;
             default:
@@ -102,40 +96,19 @@ public class Main {
         }
     }
 
+
     private static void displayHealthcareProviderMenu(HealthcareProvider provider) {
         System.out.println("\nHealthcare Provider Menu");
-        System.out.println("1. Update treatment data");
-        System.out.println("2. Verify health insurance claim");
-        System.out.println("3. Go back");
+        System.out.println("1. Verify health insurance claim");
+        System.out.println("2. Go back");
 
         int choice = getUserChoice();
         switch (choice) {
             case 1:
-//            	need to add more parameters: digital signature, who wrote this
-                System.out.print("Enter patient's medical record number: ");
-                String medicalRecord = scanner.nextLine();
-
-                System.out.print("Enter treatment data: ");
-                String treatmentData = scanner.nextLine();
-
-//                change this to auto get current data in the correct format
-                System.out.print("Enter date (YYYY-MM-DD): ");
-                String date = scanner.nextLine();
-
-                System.out.print("Enter patient ID: ");
-                String patientID = scanner.nextLine();
-
-                provider.updateTreatmentData(medicalRecord, treatmentData, date, patientID);
-                System.out.println("Treatment data updated successfully.");
-
+                provider.verifyHealthInsuranceClaim();
                 displayHealthcareProviderMenu(provider);
                 break;
             case 2:
-            	provider.verifyHealthInsuranceClaim();
-            	
-            	displayHealthcareProviderMenu(provider);
-            	break;
-            case 3:
                 displayRoleSelectionMenu();
                 break;
             default:
@@ -143,6 +116,7 @@ public class Main {
                 displayHealthcareProviderMenu(provider);
         }
     }
+
 
     private static void displayInsuranceCompanyMenu() {
         System.out.println("\nInsurance Company Menu");

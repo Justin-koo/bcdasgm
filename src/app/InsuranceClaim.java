@@ -1,11 +1,8 @@
 package app;
 
-import blockchain.Block;
-import blockchain.Blockchain;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.Arrays;
 
 public class InsuranceClaim {
     private String claimID;
@@ -14,9 +11,6 @@ public class InsuranceClaim {
     private String treatment;
     private String[] medications;
     private String claimStatus;
-    
-    // Blockchain instance
-    private static final Blockchain blockchain = new Blockchain();
 
     public InsuranceClaim(String claimID, String patientID, String diagnosis, String treatment, String[] medications, String claimStatus) {
         this.claimID = claimID;
@@ -25,10 +19,6 @@ public class InsuranceClaim {
         this.treatment = treatment;
         this.medications = medications;
         this.claimStatus = claimStatus;
-        
-        // Create and add the claim as a new block in the blockchain
-//        Block newBlock = new Block(toJson(), blockchain.getLatestBlock().getHash());
-//        blockchain.addBlock(newBlock);
     }
 
     public String getClaimID() {
@@ -101,10 +91,5 @@ public class InsuranceClaim {
         }
         sb.append("\nClaim Status: ").append(claimStatus);
         return sb.toString();
-    }
-
-    // Method to display the entire blockchain
-    public static void displayBlockchain() {
-        blockchain.displayBlockchain();
     }
 }
