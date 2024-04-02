@@ -50,8 +50,21 @@ public class HealthcareProvider {
 	            System.out.print("Enter the number of the claim you want to sign: ");
 	            int claimNumber = Integer.parseInt(scanner.nextLine());
 	            
-	            InsuranceClaim selectedClaim = claims.get(claimNumber - 1);            
+	            InsuranceClaim selectedClaim = claims.get(claimNumber - 1);    
+	            selectedClaim.setClaimStatus("Verified");
+	            
 	            String claimJson = new Gson().toJson(selectedClaim);
+	            
+	            // Rewrite the entire file with updated claim information
+	            try (BufferedWriter writer = new BufferedWriter(new FileWriter(CLAIMS_FILE))) {
+	                for (InsuranceClaim claim : claims) {
+	                    String encryptedData = Symmetric.encrypt(claimJson, loadedKey);
+	                    writer.write(encryptedData + "\n");
+	                }
+	                System.out.println("Claims file updated successfully.");
+	            } catch (IOException e) {
+	                System.err.println("Error updating claims file: " + e.getMessage());
+	            }
 	            
 	            // Sign the selected claim
 	            String signature = DigitalSignature.sign(claimJson, privateKey);

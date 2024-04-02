@@ -16,10 +16,10 @@ public class Blockchain implements Serializable{
 
     // Blockchain Constructor.
     public Blockchain() {
+    	this.blockchain = new ArrayList<>();
         File blockchainFile = new File(BLOCKCHAIN_FILE);
         
         if (blockchainFile.exists() && blockchainFile.length() > 0) {
-        	this.blockchain = new ArrayList<>();
         	
             try (BufferedReader reader = new BufferedReader(new FileReader(BLOCKCHAIN_FILE))) {
                 String line;
@@ -38,7 +38,7 @@ public class Blockchain implements Serializable{
         } else {
             System.out.println("Blockchain file not found or empty. Creating new blockchain.");
             Block genesisBlock = new Block("Genesis Block", "0");
-            addBlock(genesisBlock);
+            blockchain.add(genesisBlock);
         }
     }
     
