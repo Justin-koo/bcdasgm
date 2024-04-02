@@ -151,20 +151,19 @@ public class Blockchain implements Serializable{
     }
     
     public static void saveBlockchain(Blockchain blockchain) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BLOCKCHAIN_FILE))) {
-            ArrayList<Block> blocks = blockchain.getBlockchain(); 
-            for (Block block : blocks) {
-                writer.write(block.toString());
-                writer.newLine();  
-            }
-            System.out.println("Blockchain saved successfully to " + BLOCKCHAIN_FILE);
-        } catch (IOException e) {
-            System.err.println("Error saving blockchain: " + e.getMessage());
+    	if (blockchain.isChainValid()) {
+	        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BLOCKCHAIN_FILE))) {
+	            ArrayList<Block> blocks = blockchain.getBlockchain(); 
+	            for (Block block : blocks) {
+	                writer.write(block.toString());
+	                writer.newLine();  
+	            }
+	            System.out.println("Blockchain saved successfully to " + BLOCKCHAIN_FILE);
+	        } catch (IOException e) {
+	            System.err.println("Error saving blockchain: " + e.getMessage());
+	        }
+        } else {
+            System.err.println("Blockchain is not valid. Unable to save.");
         }
     }
-
-
-
-    
-    
 }
