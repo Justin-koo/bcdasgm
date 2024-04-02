@@ -32,8 +32,6 @@ public class Blockchain implements Serializable{
 
     // Method to add a new block to the blockchain.
     public void addBlock(Block newBlock) {
-    	System.out.println(getLatestBlock().getHash());
-    	
         newBlock.setPreviousHash(getLatestBlock().getHash());
         
         newBlock.setHash(newBlock.calculateHash());
