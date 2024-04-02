@@ -25,6 +25,7 @@ public class BlockchainSimulation {
 
         // Print the blockchain
         System.out.println("\nBlockchain:");
-        System.out.println(blockchain);
+        blockchain.displayBlockchain();
+//        System.out.println(blockchain.displayBlockchain());
     }
 }

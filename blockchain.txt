@@ -1,3 +1,0 @@
-Block{hash='8382e250d238e85afacc7e522476e2560242e682', previousHash='0', data='Genesis Block', timeStamp=1711974719468}
-Block{hash='f5bd1ec72e761283a95f58f4a06ce4a018d4b5b5', previousHash='8382e250d238e85afacc7e522476e2560242e682', data='{"claimID":"9e1b63a9-23fa-4357-8cf3-316b3734a834","patientID":"2","diagnosis":"qweAF","treatment":"WASRG","medications":["WARG"],"claimStatus":"Approved"}', timeStamp=1711974734696}
-Block{hash='a5e63efa06c735d784a899759ff8dcec874e4ddd', previousHash='f5bd1ec72e761283a95f58f4a06ce4a018d4b5b5', data='{"claimID":"e61b454f-458b-4ab9-a542-1ec544d4b901","patientID":"2","diagnosis":"2","treatment":"2","medications":["2"],"claimStatus":"Approved"}', timeStamp=1711974751390}
