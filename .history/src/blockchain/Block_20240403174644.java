@@ -16,7 +16,7 @@ public class Block {
     private String merkleRoot;
     
     // Block Constructor.
-    public Block(String data, String previousHash, List<String> dataMerkle) {
+    public Block(String data, String previousHash, ) {
         this.data = data;
         this.dataMerkle = dataMerkle;
         this.previousHash = previousHash;

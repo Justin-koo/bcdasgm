@@ -7,8 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -30,14 +28,14 @@ public class InsuranceCompany {
     private Scanner scanner;
     List<InsuranceClaim> claims;
     protected Blockchain blockchain;
-    protected Block block;
+    protected Block block; 
 
     public InsuranceCompany() {
         loadedKey = Symmetric.loadKey("InsuranceClaim");
         this.scanner = new Scanner(System.in);
         claims = new ArrayList<>();
         blockchain = new Blockchain();
-        
+        block = new Block("", CLAIMS_FILE, null);
     }
 
     public void processInsuranceClaim() {
@@ -106,60 +104,8 @@ public class InsuranceCompany {
         }
     }
     
-    private String calculateMerkleRoot(List<String> dataMerkle) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            while (dataMerkle.size() > 1) {
-                List<String> newMerkle = new ArrayList<>();
-                for (int i = 0; i < dataMerkle.size(); i += 2) {
-                    String combined = dataMerkle.get(i);
-                    if (i + 1 < dataMerkle.size()) {
-                        combined += dataMerkle.get(i + 1);
-                    }
-                    byte[] combinedBytes = combined.getBytes();
-                    byte[] hash = digest.digest(combinedBytes);
-                    newMerkle.add(bytesToHex(hash));
-                }
-                dataMerkle = newMerkle;
-            }
-            return dataMerkle.get(0);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }
-
-    private List<String> prepareDataForMerkleTree(InsuranceClaim claim) {
-        List<String> dataMerkle = new ArrayList<>();
-    
-        // Add relevant claim details to the dataMerkle list
-        // For example, you can add claim ID, patient ID, diagnosis details, treatment details, etc.
-        dataMerkle.add(claim.getClaimID());
-        dataMerkle.add(claim.getPatientID());
-        dataMerkle.add(claim.getDiagnosis());
-        dataMerkle.add(claim.getTreatment());
-    
-        // Add any other relevant information to the dataMerkle list
-    
-        return dataMerkle;
-    }
-    
-    
-    private void addClaimToBlockchain(InsuranceClaim claim, List<String> dataMerkle) {
-        String merkleRoot = calculateMerkleRoot(dataMerkle); // Calculate Merkle root
-        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash(), dataMerkle);
+    private void addClaimToBlockchain(InsuranceClaim claim) {
+        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash(), Block.computeMerkleRoot(null));
         blockchain.addBlock(newBlock);
         System.out.println("Claim added to blockchain successfully.");
         Blockchain.saveBlockchain(blockchain);  // Save the updated blockchain
@@ -239,11 +185,8 @@ public class InsuranceCompany {
                     System.out.println("Claim approved.");
                     validInput = true; // Exit the loop
 
-                    List<String> dataMerkle = prepareDataForMerkleTree(selectedClaim); // You need to define this method
-
-
                     // Add the claim to the blockchain
-                    addClaimToBlockchain(selectedClaim, dataMerkle);
+                    addClaimToBlockchain(selectedClaim);
 
                     // Update the digital signature
                     String claimJson = new Gson().toJson(selectedClaim);

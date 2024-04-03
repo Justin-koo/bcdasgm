@@ -7,8 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -140,26 +138,10 @@ public class InsuranceCompany {
         }
         return hexString.toString();
     }
-
-    private List<String> prepareDataForMerkleTree(InsuranceClaim claim) {
-        List<String> dataMerkle = new ArrayList<>();
-    
-        // Add relevant claim details to the dataMerkle list
-        // For example, you can add claim ID, patient ID, diagnosis details, treatment details, etc.
-        dataMerkle.add(claim.getClaimID());
-        dataMerkle.add(claim.getPatientID());
-        dataMerkle.add(claim.getDiagnosis());
-        dataMerkle.add(claim.getTreatment());
-    
-        // Add any other relevant information to the dataMerkle list
-    
-        return dataMerkle;
-    }
-    
     
     private void addClaimToBlockchain(InsuranceClaim claim, List<String> dataMerkle) {
         String merkleRoot = calculateMerkleRoot(dataMerkle); // Calculate Merkle root
-        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash(), dataMerkle);
+        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash(), Block.computeMerkleRoot(claim.toJson()));
         blockchain.addBlock(newBlock);
         System.out.println("Claim added to blockchain successfully.");
         Blockchain.saveBlockchain(blockchain);  // Save the updated blockchain
@@ -239,11 +221,8 @@ public class InsuranceCompany {
                     System.out.println("Claim approved.");
                     validInput = true; // Exit the loop
 
-                    List<String> dataMerkle = prepareDataForMerkleTree(selectedClaim); // You need to define this method
-
-
                     // Add the claim to the blockchain
-                    addClaimToBlockchain(selectedClaim, dataMerkle);
+                    addClaimToBlockchain(selectedClaim);
 
                     // Update the digital signature
                     String claimJson = new Gson().toJson(selectedClaim);
