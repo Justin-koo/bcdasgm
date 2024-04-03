@@ -41,6 +41,8 @@ public class InsuranceCompany {
     }
 
     public void processInsuranceClaim() {
+    	PublicKey publicKey = Asymmetric.loadPublicKey("HealthcareProvider");
+    	
         try (BufferedReader reader = new BufferedReader(new FileReader(CLAIMS_FILE))){
 
             System.out.println("\nProcessing Insurance Claims:");
@@ -55,7 +57,6 @@ public class InsuranceCompany {
                 
                 String signature = retrieveSignature(claim.getClaimID());
                 if (signature != null) {
-                    PublicKey publicKey = Asymmetric.loadPublicKey("HealthcareProvider");
                     String claimJson = new Gson().toJson(claim);
 
                     if (DigitalSignature.verify(claimJson, signature, publicKey)) {
