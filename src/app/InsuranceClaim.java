@@ -11,14 +11,18 @@ public class InsuranceClaim {
     private String treatment;
     private String[] medications;
     private String claimStatus;
+    private Double totalCost;
+    private String dateOfService;
 
-    public InsuranceClaim(String claimID, String patientID, String diagnosis, String treatment, String[] medications, String claimStatus) {
+    public InsuranceClaim(String claimID, String patientID, String diagnosis, String treatment, String[] medications, String claimStatus, Double totalCost, String dateOfService) {
         this.claimID = claimID;
         this.patientID = patientID;
         this.diagnosis = diagnosis;
         this.treatment = treatment;
         this.medications = medications;
         this.claimStatus = claimStatus;
+        this.totalCost = totalCost;
+        this.dateOfService = dateOfService;
     }
 
     public String getClaimID() {
@@ -61,6 +65,22 @@ public class InsuranceClaim {
         jsonObject.addProperty("claimStatus", claimStatus);
         return gson.toJson(jsonObject);
     }
+    
+    public double getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(double totalCost) {
+        this.totalCost = totalCost;
+    }
+
+    public String getDateOfService() {
+        return dateOfService;
+    }
+
+    public void setDateOfService(String dateOfService) {
+        this.dateOfService = dateOfService;
+    }
 
     public static InsuranceClaim fromJson(String json) {
         Gson gson = new Gson();
@@ -72,9 +92,11 @@ public class InsuranceClaim {
         JsonArray medicationsArray = jsonObject.get("medications").getAsJsonArray();
         String[] medications = gson.fromJson(medicationsArray, String[].class);
         String claimStatus = jsonObject.get("claimStatus").getAsString();
-        return new InsuranceClaim(claimID, patientID, diagnosis, treatment, medications, claimStatus);
+        double totalCost = jsonObject.get("totalCost").getAsDouble();
+        String dateOfService = jsonObject.get("dateOfService").getAsString();
+        return new InsuranceClaim(claimID, patientID, diagnosis, treatment, medications, claimStatus, totalCost, dateOfService);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -89,7 +111,10 @@ public class InsuranceClaim {
                 sb.append(", ");
             }
         }
-        sb.append("\nClaim Status: ").append(claimStatus);
+        sb.append("\nTotal Cost: ").append(totalCost).append("\n");
+        sb.append("Date of Service: ").append(dateOfService).append("\n");
+        sb.append("Claim Status: ").append(claimStatus);
         return sb.toString();
     }
+
 }

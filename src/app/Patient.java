@@ -22,7 +22,7 @@ public class Patient {
         	// Generate a unique claim ID
         	String claimID = UUID.randomUUID().toString();
         	
-        	InsuranceClaim claim = new InsuranceClaim(claimID, patientID, diagnosis, treatment, medications, "Pending");
+        	InsuranceClaim claim = new InsuranceClaim(claimID, patientID, diagnosis, treatment, medications, "Pending", null, null);
 
         	String claimJson = claim.toJson();
         	
