@@ -53,6 +53,17 @@ public class HealthcareProvider {
 	            InsuranceClaim selectedClaim = claims.get(claimNumber - 1);    
 	            selectedClaim.setClaimStatus("Verified");
 	            
+	            // Prompt the healthcare provider to enter total cost and date of service
+	            System.out.print("Enter the total cost of service: ");
+	            double totalCost = Double.parseDouble(scanner.nextLine());
+	            System.out.print("Enter the date of service (YYYY-MM-DD): ");
+	            String dateOfService = scanner.nextLine();
+
+	            // Update the selected claim with entered values
+	            selectedClaim.setTotalCost(totalCost);
+	            selectedClaim.setDateOfService(dateOfService);
+
+	            
 	            String claimJson = new Gson().toJson(selectedClaim);
 	            
 	            // Rewrite the entire file with updated claim information
