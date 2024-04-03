@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Blockchain implements Serializable{
 
     private ArrayList<Block> blockchain;
@@ -112,19 +113,17 @@ public class Blockchain implements Serializable{
         for (String blockString : blockStrings) {
             // Split each block string into its components
             String[] parts = blockString.split(", ");
-            
+
             // Extracting hash and previous hash
             String hash = parts[0].substring(parts[0].indexOf(":") + 2);
             String previousHash = parts[1].substring(parts[1].indexOf(":") + 2);
-            
-            // Extracting data (which might be a JSON string)
-            String data = parts[2].substring(parts[2].indexOf(":") + 2);
 
             // Extracting the timestamp
             String[] timeStampParts = parts[3].substring(parts[3].indexOf(":") + 2).split("Hash");
             long timeStamp = Long.parseLong(timeStampParts[0].trim());
 
-            // Only add the block if it doesn't already exist in the blockchain
+            // Extracting the data and parsing it as JSON
+            String dataString = parts[2].substring(parts[2].indexOf(":") + 2);
             Block block = Block.fromString(blockString, blockchain.getBlockchain());
             if (block != null) {
                 blockchain.addBlock(block);
@@ -133,6 +132,7 @@ public class Blockchain implements Serializable{
 
         return blockchain;
     }
+
 
     @Override
     public String toString() {

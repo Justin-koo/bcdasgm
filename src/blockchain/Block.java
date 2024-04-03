@@ -98,22 +98,31 @@ public class Block {
         return sdf.format(date);
     }
     
-    // Convert string representation of a block back to a Block object
     public static Block fromString(String blockString, ArrayList<Block> blockchain) {
         try {
+            // Remove the "Block{" and "}" from the beginning and end of the blockString
+            blockString = blockString.replace("Block{", "").replace("}", "");
+            
+            // Split the blockString into parts based on ","
             String[] parts = blockString.split(", ");
+            
+            // Extract hash, previousHash, and data from the parts
             String hash = parts[0].substring(parts[0].indexOf("'") + 1, parts[0].lastIndexOf("'"));
             String previousHash = parts[1].substring(parts[1].indexOf("'") + 1, parts[1].lastIndexOf("'"));
             String data = parts[2].substring(parts[2].indexOf("'") + 1, parts[2].lastIndexOf("'"));
+            
             // Assuming the data string should be split into multiple items.
             // This is a placeholder; you'll need to adjust it based on your actual data format.
             List<String> dataList = new ArrayList<>();
-            String dataPart = parts[2].substring(parts[2].indexOf("'") + 1, parts[2].lastIndexOf("'"));
-            dataList.add(dataPart); // This is a simplification. You might want to split the data string into multiple parts.
+            String[] dataParts = data.split(",");
+            for (String part : dataParts) {
+                dataList.add(part.trim());  // Trim to remove any leading or trailing spaces
+            }
+
             // Extract the timestamp value correctly
-            long timeStamp = Long.parseLong(parts[3].substring(parts[3].indexOf("=") + 1, parts[3].lastIndexOf("}")));
+            long timeStamp = Long.parseLong(parts[3].substring(parts[3].indexOf("=") + 1));
             
-            Block block = new Block(data, previousHash,dataList);
+            Block block = new Block(data, previousHash, dataList);
             block.setHash(hash);
             block.setTimeStamp(timeStamp);
             
@@ -123,6 +132,8 @@ public class Block {
             return null;
         }
     }
+
+
 
 
 
