@@ -1,12 +1,18 @@
 package blockchain;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Block {
+public class Block implements Serializable{
     
     private String hash;
     private String previousHash;
@@ -187,5 +193,27 @@ public class Block {
 
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
+    }
+    
+ // Serialize the Block object to a binary file
+    public void saveToFile(String filename) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
+            oos.writeObject(this);
+            System.out.println("Block saved successfully to " + filename);
+        } catch (IOException e) {
+            System.err.println("Error saving block to file: " + e.getMessage());
+        }
+    }
+
+    // Deserialize the Block object from a binary file
+    public static Block loadFromFile(String filename) {
+        Block block = null;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
+            block = (Block) ois.readObject();
+            System.out.println("Block loaded successfully from " + filename);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading block from file: " + e.getMessage());
+        }
+        return block;
     }
 }

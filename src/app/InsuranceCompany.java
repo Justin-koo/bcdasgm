@@ -1,10 +1,12 @@
 package app;
 
+import java.io.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.MessageDigest;
@@ -31,13 +33,64 @@ public class InsuranceCompany {
     List<InsuranceClaim> claims;
     protected Blockchain blockchain;
     protected Block block;
+    private static final String BLOCKCHAIN_FILE = "blockchain.dat";
 
     public InsuranceCompany() {
         loadedKey = Symmetric.loadKey("InsuranceClaim");
         this.scanner = new Scanner(System.in);
         claims = new ArrayList<>();
-        blockchain = new Blockchain();
+        blockchain = loadBlockchainFromFile(); 
+        printBlockchainFromFile();
         
+    }
+    
+    private void printBlockchainFromFile() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(BLOCKCHAIN_FILE))) {
+            Blockchain blockchain = (Blockchain) ois.readObject();
+            System.out.println("Blockchain content from " + BLOCKCHAIN_FILE + ":");
+            System.out.println(blockchain);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error reading blockchain from file: " + e.getMessage());
+        }
+    }
+    
+    private Blockchain loadBlockchainFromFile() {
+        Blockchain loadedBlockchain = null;
+        File file = new File(BLOCKCHAIN_FILE);  // Create a File object
+
+        if (file.exists()) {  // Check if the file exists
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(BLOCKCHAIN_FILE))) {
+                loadedBlockchain = (Blockchain) ois.readObject();
+                System.out.println("Blockchain loaded successfully from " + BLOCKCHAIN_FILE);
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Error loading blockchain from file: " + e.getMessage());
+                loadedBlockchain = new Blockchain();  // Create new blockchain if file is corrupt
+            }
+        } else {
+            System.out.println("Blockchain file does not exist. Creating new blockchain.");
+            loadedBlockchain = new Blockchain();  // Create new blockchain
+            saveBlockchainToFile(loadedBlockchain);  // Save new blockchain to file
+        }
+        
+        return loadedBlockchain;
+    }
+
+    private void saveBlockchainToFile(Blockchain blockchain) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(BLOCKCHAIN_FILE))) {
+            oos.writeObject(blockchain);
+            System.out.println("Blockchain saved successfully to " + BLOCKCHAIN_FILE);
+        } catch (IOException e) {
+            System.err.println("Error saving blockchain to file: " + e.getMessage());
+        }
+    }
+
+
+    private void addClaimToBlockchain(InsuranceClaim claim, List<String> dataMerkle) {
+        String merkleRoot = calculateMerkleRoot(dataMerkle); // Calculate Merkle root
+        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash(), dataMerkle);
+        blockchain.addBlock(newBlock);
+        System.out.println("Claim added to blockchain successfully.");
+        saveBlockchainToFile(blockchain);  // Save the updated blockchain
     }
 
     public void processInsuranceClaim() {
@@ -158,15 +211,7 @@ public class InsuranceCompany {
         return dataMerkle;
     }
     
-    
-    private void addClaimToBlockchain(InsuranceClaim claim, List<String> dataMerkle) {
-        String merkleRoot = calculateMerkleRoot(dataMerkle); // Calculate Merkle root
-        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash(), dataMerkle);
-        blockchain.addBlock(newBlock);
-        System.out.println("Claim added to blockchain successfully.");
-        Blockchain.saveBlockchain(blockchain);  // Save the updated blockchain
-    }
-    
+
     private void updateSignature(String claimID, String newSignature) {
         // Read existing signatures from the file
         StringBuilder updatedSignatures = new StringBuilder();

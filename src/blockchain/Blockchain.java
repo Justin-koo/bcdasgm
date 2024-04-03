@@ -3,9 +3,13 @@ package blockchain;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,37 +18,29 @@ import java.util.List;
 public class Blockchain implements Serializable{
 
     private ArrayList<Block> blockchain;
-    private static final String BLOCKCHAIN_FILE = "blockchain.txt";
+    private static final String BLOCKCHAIN_FILE = "blockchain.bin";
 
     // Blockchain Constructor.
     public Blockchain() {
-    	this.blockchain = new ArrayList<>();
+        this.blockchain = new ArrayList<>();
         File blockchainFile = new File(BLOCKCHAIN_FILE);
-        
+
         if (blockchainFile.exists() && blockchainFile.length() > 0) {
-        	
-            try (BufferedReader reader = new BufferedReader(new FileReader(BLOCKCHAIN_FILE))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    Block block = Block.fromString(line, getBlockchain());
-                    if (block != null) {
-//                    	System.out.println("222" + block);
-                    	blockchain.add(block);
-//                        blockchain.addBlock(block);
-                    }
-                }
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(blockchainFile))) {
+                blockchain = (ArrayList<Block>) ois.readObject();
                 System.out.println("Blockchain loaded successfully from " + BLOCKCHAIN_FILE);
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 System.err.println("Error loading blockchain: " + e.getMessage());
             }
         } else {
             System.out.println("Blockchain file not found or empty. Creating new blockchain.");
             List<String> genesisData = new ArrayList<>();
             genesisData.add("Genesis Block");
-            Block genesisBlock = new Block("Genesis Block", "0",genesisData);
+            Block genesisBlock = new Block("Genesis Block", "0", genesisData);
             blockchain.add(genesisBlock);
         }
     }
+
     
     public Blockchain(ArrayList<Block> blocks) {
         this.blockchain = blocks;
@@ -153,19 +149,16 @@ public class Blockchain implements Serializable{
     }
     
     public static void saveBlockchain(Blockchain blockchain) {
-    	if (blockchain.isChainValid()) {
-	        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BLOCKCHAIN_FILE))) {
-	            ArrayList<Block> blocks = blockchain.getBlockchain(); 
-	            for (Block block : blocks) {
-	                writer.write(block.toString());
-	                writer.newLine();  
-	            }
-	            System.out.println("Blockchain saved successfully to " + BLOCKCHAIN_FILE);
-	        } catch (IOException e) {
-	            System.err.println("Error saving blockchain: " + e.getMessage());
-	        }
+        if (blockchain.isChainValid()) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(BLOCKCHAIN_FILE))) {
+                oos.writeObject(blockchain.getBlockchain());
+                System.out.println("Blockchain saved successfully to " + BLOCKCHAIN_FILE);
+            } catch (IOException e) {
+                System.err.println("Error saving blockchain: " + e.getMessage());
+            }
         } else {
             System.err.println("Blockchain is not valid. Unable to save.");
         }
     }
+
 }
