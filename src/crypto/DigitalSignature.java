@@ -9,7 +9,7 @@ public class DigitalSignature {
     // Method to sign data using a private key
     public static String sign(String data, PrivateKey privateKey) {
         try {
-            Signature signature = Signature.getInstance("SHA256withRSA");
+            Signature signature = Signature.getInstance("SHA512withRSA");
             signature.initSign(privateKey);
             signature.update(data.getBytes());
             byte[] signatureBytes = signature.sign();
