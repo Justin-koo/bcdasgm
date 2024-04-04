@@ -14,12 +14,13 @@ import java.util.List;
 
 public class Block implements Serializable{
     
-    private String hash;
-    private String previousHash;
-    private String data; 
-    private List<String> dataMerkle; 
-    private long timeStamp; 
-    private String merkleRoot;
+	private String hash;
+	private String previousHash;
+	private String data;
+	private List<String> dataMerkle;
+	private long timeStamp;
+	private String merkleRoot;
+
     
     // Block Constructor.
     public Block(String data, String previousHash, List<String> dataMerkle) {
@@ -188,7 +189,7 @@ public class Block implements Serializable{
         this.timeStamp = timeStamp;
     }
     
- // Serialize the Block object to a binary file
+    // Serialize the Block object to a binary file
     public void saveToFile(String filename) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(this);
