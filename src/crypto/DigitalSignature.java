@@ -23,7 +23,7 @@ public class DigitalSignature {
     // Method to verify a digital signature using a public key
     public static boolean verify(String data, String signature, PublicKey publicKey) {
         try {
-            Signature sig = Signature.getInstance("SHA256withRSA");
+            Signature sig = Signature.getInstance("SHA512withRSA");
             sig.initVerify(publicKey);
             sig.update(data.getBytes());
             return sig.verify(Base64.getDecoder().decode(signature));

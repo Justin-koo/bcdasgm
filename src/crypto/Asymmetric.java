@@ -14,7 +14,6 @@ public class Asymmetric {
             // Create a KeyPairGenerator object for RSA algorithm
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 
-            // Initialize the KeyPairGenerator with key size (e.g., 2048 bits)
             keyGen.initialize(2048);
 
             // Generate the key pair
