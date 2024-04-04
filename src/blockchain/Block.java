@@ -16,8 +16,8 @@ public class Block implements Serializable{
     
     private String hash;
     private String previousHash;
-    private String data; // Our data will be a simple message.
-    private List<String> dataMerkle; // Now a list of data
+    private String data; 
+    private List<String> dataMerkle; 
     private long timeStamp; 
     private String merkleRoot;
     
@@ -28,14 +28,14 @@ public class Block implements Serializable{
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
         this.merkleRoot = computeMerkleRoot(dataMerkle);
-        this.hash = calculateHash(); // Making sure we do this after we set the other values.
+        this.hash = calculateHash(); 
     }
 
     // Constructor without Merkle root
     public Block(String data, String previousHash) {
         this.data = data;
         this.previousHash = previousHash;
-        this.merkleRoot = null; // Set merkleRoot to null when not provided
+        this.merkleRoot = null; 
     }
 
     // Simplified Merkle Root calculation
@@ -116,9 +116,7 @@ public class Block implements Serializable{
             String hash = parts[0].substring(parts[0].indexOf("'") + 1, parts[0].lastIndexOf("'"));
             String previousHash = parts[1].substring(parts[1].indexOf("'") + 1, parts[1].lastIndexOf("'"));
             String data = parts[2].substring(parts[2].indexOf("'") + 1, parts[2].lastIndexOf("'"));
-            
-            // Assuming the data string should be split into multiple items.
-            // This is a placeholder; you'll need to adjust it based on your actual data format.
+
             List<String> dataList = new ArrayList<>();
             String[] dataParts = data.split(",");
             for (String part : dataParts) {
@@ -138,11 +136,6 @@ public class Block implements Serializable{
             return null;
         }
     }
-
-
-
-
-
 
 
     @Override
