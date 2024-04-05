@@ -38,7 +38,7 @@ public class Blockchain implements Serializable{
             System.out.println("Blockchain file not found or empty. Creating new blockchain.");
             List<String> genesisData = new ArrayList<>();
             genesisData.add("Genesis Block");
-            Block genesisBlock = new Block("Genesis Block", "0");
+            Block genesisBlock = new Block("Genesis Block", "0", genesisData);
             blockchain.add(genesisBlock);
         }
     }
@@ -101,6 +101,7 @@ public class Blockchain implements Serializable{
                 return false;
             }
         }
+
         return true;
     }
 
@@ -109,7 +110,6 @@ public class Blockchain implements Serializable{
         for (Block block : blockchain) {
             System.out.println("Hash: " + block.getHash());
             System.out.println("Previous Hash: " + block.getPreviousHash());
-            System.out.println("Merkle Root: " + block.getMerkleRoot());
             System.out.println("Data: " + block.getData());
             System.out.println("Timestamp: " + block.getReadableTimeStamp()); // Change here
             System.out.println("---------------------------------------");
@@ -155,7 +155,6 @@ public class Blockchain implements Serializable{
         for (Block block : blockchain) {
             blockchainString.append("Hash: ").append(block.getHash()).append(", ")
                             .append("Previous Hash: ").append(block.getPreviousHash()).append(", ")
-                            .append("Merkle Root: ").append(block.getMerkleRoot()).append(", ")
                             .append("Data: ").append(block.getData()).append(", ")
                             .append("Timestamp: ").append(block.getTimeStamp())
                             .append("\n");

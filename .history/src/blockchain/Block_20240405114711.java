@@ -28,17 +28,21 @@ public class Block implements Serializable{
         this.data = data;
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
-        this.merkleRoot = MerkleRoot(data); // Calculate Merkle Root
+        this.merkleRoot = calculateMerkleRoot(); // Calculate Merkle Root
         this.hash = calculateHash(); // Making sure we do this after we set the other values.
     }
 
+    // Convert single data string to list with a single element
+    private List<String> convertDataToList(String data) {
+        List<String> dataList = new ArrayList<>();
+        dataList.add(data);
+        return dataList;
+    }
 
     // Calculate Merkle Root based on single data string
-    private String MerkleRoot(String data) {
-        List<String> dataList = MerkleTree.convertDataToList(data);
-        
+    private String calculateMerkleRoot() {
+        List<String> dataList = convertDataToList(data);
         return MerkleTree.calculateMerkleRoot(dataList);
-
     }
 
 

@@ -28,17 +28,21 @@ public class Block implements Serializable{
         this.data = data;
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
-        this.merkleRoot = MerkleRoot(data); // Calculate Merkle Root
+        this.merkleRoot = calculateMerkleRoot(); // Calculate Merkle Root
         this.hash = calculateHash(); // Making sure we do this after we set the other values.
     }
 
+    // Convert single data string to list with a single element
+    private List<String> convertDataToList(String data) {
+        List<String> dataList = new ArrayList<>();
+        dataList.add(data);
+        return dataList;
+    }
 
     // Calculate Merkle Root based on single data string
-    private String MerkleRoot(String data) {
-        List<String> dataList = MerkleTree.convertDataToList(data);
-        
+    private String calculateMerkleRoot() {
+        List<String> dataList = convertDataToList(data);
         return MerkleTree.calculateMerkleRoot(dataList);
-
     }
 
 
@@ -86,7 +90,16 @@ public class Block implements Serializable{
             String hash = parts[0].substring(parts[0].indexOf("'") + 1, parts[0].lastIndexOf("'"));
             String previousHash = parts[1].substring(parts[1].indexOf("'") + 1, parts[1].lastIndexOf("'"));
             String data = parts[2].substring(parts[2].indexOf("'") + 1, parts[2].lastIndexOf("'"));
+<<<<<<< Updated upstream
+
+            List<String> dataList = new ArrayList<>();
+            String[] dataParts = data.split(",");
+            for (String part : dataParts) {
+                dataList.add(part.trim());  // Trim to remove any leading or trailing spaces
+            }
+=======
             
+>>>>>>> Stashed changes
 
             // Extract the timestamp value correctly
             long timeStamp = Long.parseLong(parts[3].substring(parts[3].indexOf("=") + 1));

@@ -14,7 +14,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import crypto.MerkleTree;
+import crypto.Merkle;
 
 
 public class Blockchain implements Serializable{
@@ -38,7 +38,7 @@ public class Blockchain implements Serializable{
             System.out.println("Blockchain file not found or empty. Creating new blockchain.");
             List<String> genesisData = new ArrayList<>();
             genesisData.add("Genesis Block");
-            Block genesisBlock = new Block("Genesis Block", "0");
+            Block genesisBlock = new Block("Genesis Block", "0", genesisData);
             blockchain.add(genesisBlock);
         }
     }
@@ -52,16 +52,11 @@ public class Blockchain implements Serializable{
     public void addBlock(Block newBlock) {
         newBlock.setPreviousHash(getLatestBlock().getHash());
 
+        // Calculate Merkle root before setting it in the block
+        newBlock.setMerkleRoot(MerkleTree.calculateMerkleRoot());
         
         newBlock.setHash(newBlock.calculateHash());
         blockchain.add(newBlock);
-    }
-
-    // Convert single data string to list with a single element
-    private List<String> convertDataToList(String data) {
-        List<String> dataList = new ArrayList<>();
-        dataList.add(data);
-        return dataList;
     }
 
     // Method to check if the blockchain is valid.
@@ -91,16 +86,8 @@ public class Blockchain implements Serializable{
                 System.out.println("Timestamps are not in chronological order");
                 return false;
             }
-
-            // Verify Merkle Root
-            String transactions = currentBlock.getData();
-            List<String> dataList = convertDataToList(transactions);
-            String calculatedMerkleRoot = MerkleTree.calculateMerkleRoot(dataList);
-            if (!calculatedMerkleRoot.equals(currentBlock.getMerkleRoot())) {
-                System.out.println("Merkle Root mismatch in block: " + currentBlock.getHash());
-                return false;
-            }
         }
+
         return true;
     }
 
@@ -109,7 +96,6 @@ public class Blockchain implements Serializable{
         for (Block block : blockchain) {
             System.out.println("Hash: " + block.getHash());
             System.out.println("Previous Hash: " + block.getPreviousHash());
-            System.out.println("Merkle Root: " + block.getMerkleRoot());
             System.out.println("Data: " + block.getData());
             System.out.println("Timestamp: " + block.getReadableTimeStamp()); // Change here
             System.out.println("---------------------------------------");
@@ -155,7 +141,6 @@ public class Blockchain implements Serializable{
         for (Block block : blockchain) {
             blockchainString.append("Hash: ").append(block.getHash()).append(", ")
                             .append("Previous Hash: ").append(block.getPreviousHash()).append(", ")
-                            .append("Merkle Root: ").append(block.getMerkleRoot()).append(", ")
                             .append("Data: ").append(block.getData()).append(", ")
                             .append("Timestamp: ").append(block.getTimeStamp())
                             .append("\n");

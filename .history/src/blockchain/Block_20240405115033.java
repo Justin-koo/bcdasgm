@@ -23,23 +23,23 @@ public class Block implements Serializable{
     private String merkleRoot; // Merkle Root
     
     
-    // Block Constructor.
-    public Block(String data, String previousHash) {
-        this.data = data;
-        this.previousHash = previousHash;
-        this.timeStamp = new Date().getTime();
-        this.merkleRoot = MerkleRoot(data); // Calculate Merkle Root
-        this.hash = calculateHash(); // Making sure we do this after we set the other values.
-    }
+// Block Constructor.
+public Block(String data, String previousHash) {
+    this.data = data;
+    this.previousHash = previousHash;
+    this.timeStamp = new Date().getTime();
+    this.merkleRoot = MerkleRoot(data); // Calculate Merkle Root
+    this.hash = calculateHash(); // Making sure we do this after we set the other values.
+}
 
 
-    // Calculate Merkle Root based on single data string
-    private String MerkleRoot(String data) {
-        List<String> dataList = MerkleTree.convertDataToList(data);
-        
-        return MerkleTree.calculateMerkleRoot(dataList);
+// Calculate Merkle Root based on single data string
+private String MerkleRoot(String data) {
+    List<String> dataList = MerkleTree.convertDataToList(data);
+    
+    return MerkleTree.calculateMerkleRoot(dataList);
 
-    }
+}
 
 
     // Calculate new hash based on blocks contents using SHA-1.

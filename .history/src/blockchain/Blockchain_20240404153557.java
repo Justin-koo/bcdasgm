@@ -101,6 +101,7 @@ public class Blockchain implements Serializable{
                 return false;
             }
         }
+
         return true;
     }
 
@@ -155,7 +156,7 @@ public class Blockchain implements Serializable{
         for (Block block : blockchain) {
             blockchainString.append("Hash: ").append(block.getHash()).append(", ")
                             .append("Previous Hash: ").append(block.getPreviousHash()).append(", ")
-                            .append("Merkle Root: ").append(block.getMerkleRoot()).append(", ")
+                            .append("Previous Hash: ").append(block.ge()).append(", ")
                             .append("Data: ").append(block.getData()).append(", ")
                             .append("Timestamp: ").append(block.getTimeStamp())
                             .append("\n");

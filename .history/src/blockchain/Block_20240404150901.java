@@ -28,17 +28,21 @@ public class Block implements Serializable{
         this.data = data;
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
-        this.merkleRoot = MerkleRoot(data); // Calculate Merkle Root
+        this.merkleRoot = calculateMerkleRoot(); // Calculate Merkle Root
         this.hash = calculateHash(); // Making sure we do this after we set the other values.
     }
 
+    // Convert single data string to list with a single element
+    private List<String> convertDataToList(String data) {
+        List<String> dataList = new ArrayList<>();
+        dataList.add(data);
+        return dataList;
+    }
 
     // Calculate Merkle Root based on single data string
-    private String MerkleRoot(String data) {
-        List<String> dataList = MerkleTree.convertDataToList(data);
-        
+    private String calculateMerkleRoot() {
+        List<String> dataList = convertDataToList(data);
         return MerkleTree.calculateMerkleRoot(dataList);
-
     }
 
 
@@ -97,7 +101,6 @@ public class Block implements Serializable{
             Block block = new Block(data, previousHash);
             block.setHash(hash);
             block.setTimeStamp(timeStamp);
-            block.setMerkleRoot(merkleRoot); // Set the Merkle Root value
             
             return block;
         } catch (Exception e) {
@@ -107,9 +110,14 @@ public class Block implements Serializable{
     }
 
 
+
+
+
+
+
     @Override
     public String toString() {
-        return "Block{hash='" + hash + "', previousHash='" + previousHash + ", merkleRoot='" + merkleRoot  + "', data='" + data + "', timeStamp=" + timeStamp + "'}";
+        return "Block{hash='" + hash + "', previousHash='" + previousHash + "', data='" + data + "', timeStamp=" + timeStamp + "'}";
     }
 
 
@@ -139,14 +147,13 @@ public class Block implements Serializable{
         this.data = data;
     }
 
-    public String getMerkleRoot() {
+    public String getMerkle() {
         return merkleRoot;
     }
 
-    public void setMerkleRoot(String merkleRoot) {
+    public void setMerkle(String merkleRoot) {
         this.merkleRoot = merkleRoot;
     }
-    
 
 
     public long getTimeStamp() {
@@ -157,7 +164,7 @@ public class Block implements Serializable{
         this.timeStamp = timeStamp;
     }
     
-    // Serialize the Block object to a binary file
+ // Serialize the Block object to a binary file
     public void saveToFile(String filename) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(this);

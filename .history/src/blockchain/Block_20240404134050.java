@@ -12,35 +12,27 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import crypto.MerkleTree;
-
 public class Block implements Serializable{
     
     private String hash;
     private String previousHash;
     private String data; // Our data will be a simple message.
     private long timeStamp; 
-    private String merkleRoot; // Merkle Root
     
     
     // Block Constructor.
-    public Block(String data, String previousHash) {
+    public Block(String data, String previousHash, List<String> dataMerkle) {
         this.data = data;
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
-        this.merkleRoot = MerkleRoot(data); // Calculate Merkle Root
         this.hash = calculateHash(); // Making sure we do this after we set the other values.
     }
 
-
-    // Calculate Merkle Root based on single data string
-    private String MerkleRoot(String data) {
-        List<String> dataList = MerkleTree.convertDataToList(data);
-        
-        return MerkleTree.calculateMerkleRoot(dataList);
-
+    // Constructor without Merkle root
+    public Block(String data, String previousHash) {
+        this.data = data;
+        this.previousHash = previousHash;
     }
-
 
     // Calculate new hash based on blocks contents using SHA-1.
     public String calculateHash() {
@@ -48,7 +40,7 @@ public class Block implements Serializable{
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
             
             // Concatenate data, previousHash, and timeStamp to form input string.
-            String input = previousHash + merkleRoot + Long.toString(timeStamp) + data;
+            String input = previousHash + Long.toString(timeStamp) + data;
             
             // Compute hash.
             byte[] hashBytes = digest.digest(input.getBytes("UTF-8"));
@@ -87,17 +79,20 @@ public class Block implements Serializable{
             String previousHash = parts[1].substring(parts[1].indexOf("'") + 1, parts[1].lastIndexOf("'"));
             String data = parts[2].substring(parts[2].indexOf("'") + 1, parts[2].lastIndexOf("'"));
             
+            // Assuming the data string should be split into multiple items.
+            // This is a placeholder; you'll need to adjust it based on your actual data format.
+            List<String> dataList = new ArrayList<>();
+            String[] dataParts = data.split(",");
+            for (String part : dataParts) {
+                dataList.add(part.trim());  // Trim to remove any leading or trailing spaces
+            }
 
             // Extract the timestamp value correctly
             long timeStamp = Long.parseLong(parts[3].substring(parts[3].indexOf("=") + 1));
-
-            // Extract the Merkle Root
-            String merkleRoot = parts[4].substring(parts[4].indexOf("'") + 1, parts[4].lastIndexOf("'"));
             
-            Block block = new Block(data, previousHash);
+            Block block = new Block(data, previousHash, dataList);
             block.setHash(hash);
             block.setTimeStamp(timeStamp);
-            block.setMerkleRoot(merkleRoot); // Set the Merkle Root value
             
             return block;
         } catch (Exception e) {
@@ -107,9 +102,14 @@ public class Block implements Serializable{
     }
 
 
+
+
+
+
+
     @Override
     public String toString() {
-        return "Block{hash='" + hash + "', previousHash='" + previousHash + ", merkleRoot='" + merkleRoot  + "', data='" + data + "', timeStamp=" + timeStamp + "'}";
+        return "Block{hash='" + hash + "', previousHash='" + previousHash + "', data='" + data + "', timeStamp=" + timeStamp + ", merkleRoot='" + merkleRoot + "'}";
     }
 
 
@@ -139,15 +139,15 @@ public class Block implements Serializable{
         this.data = data;
     }
 
-    public String getMerkleRoot() {
-        return merkleRoot;
+    public List<String> getDataMerkle() {
+        return dataMerkle;
     }
 
-    public void setMerkleRoot(String merkleRoot) {
-        this.merkleRoot = merkleRoot;
+    public void setDataMerkle(List<String> dataMerkle) {
+        this.dataMerkle = dataMerkle;
+        this.merkleRoot = computeMerkleRoot(dataMerkle); // Recalculate Merkle Root if data changes
+        this.hash = calculateHash(); // Recalculate hash since data changed
     }
-    
-
 
     public long getTimeStamp() {
         return timeStamp;
@@ -157,7 +157,7 @@ public class Block implements Serializable{
         this.timeStamp = timeStamp;
     }
     
-    // Serialize the Block object to a binary file
+ // Serialize the Block object to a binary file
     public void saveToFile(String filename) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(this);

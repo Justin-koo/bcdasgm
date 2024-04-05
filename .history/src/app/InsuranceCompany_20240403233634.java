@@ -1,12 +1,10 @@
 package app;
 
-import java.io.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.MessageDigest;
@@ -33,73 +31,19 @@ public class InsuranceCompany {
     List<InsuranceClaim> claims;
     protected Blockchain blockchain;
     protected Block block;
-    private static final String BLOCKCHAIN_FILE = "blockchain.bin";
 
     public InsuranceCompany() {
         loadedKey = Symmetric.loadKey("InsuranceClaim");
         this.scanner = new Scanner(System.in);
         claims = new ArrayList<>();
-        blockchain = loadBlockchainFromFile(); 
-        printBlockchainFromFile();
-    }
-    
-    private void printBlockchainFromFile() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(BLOCKCHAIN_FILE))) {
-            Blockchain blockchain = (Blockchain) ois.readObject();
-            System.out.println("Blockchain content from " + BLOCKCHAIN_FILE + ":");
-            System.out.println(blockchain);
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error reading blockchain from file: " + e.getMessage());
-        }
-    }
-    
-    private Blockchain loadBlockchainFromFile() {
-        Blockchain loadedBlockchain = null;
-        File file = new File(BLOCKCHAIN_FILE);
-
-        try {
-            if (file.exists()) {
-                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(BLOCKCHAIN_FILE))) {
-                    loadedBlockchain = (Blockchain) ois.readObject();
-                    System.out.println("Blockchain loaded successfully from " + BLOCKCHAIN_FILE);
-                } catch (IOException | ClassNotFoundException e) {
-                    System.err.println("Error loading blockchain from file: " + e.getMessage());
-                    loadedBlockchain = new Blockchain();  // Create new blockchain if file is corrupt
-                }
-            } else {
-                System.out.println("Blockchain file does not exist. Creating new blockchain.");
-                loadedBlockchain = new Blockchain();  // Create new blockchain
-                saveBlockchainToFile(loadedBlockchain);  // Save new blockchain to file
-            }
-        } catch (Exception e) {
-            System.err.println("Error accessing blockchain file: " + e.getMessage());
-        }
+        blockchain = new Blockchain();
         
-        return loadedBlockchain;
-    }
-
-    private void saveBlockchainToFile(Blockchain blockchain) {
-        try {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(BLOCKCHAIN_FILE))) {
-                oos.writeObject(blockchain);
-                System.out.println("Blockchain saved successfully to " + BLOCKCHAIN_FILE);
-            }
-        } catch (IOException e) {
-            System.err.println("Error saving blockchain to file: " + e.getMessage());
-        }
-    }
-
-
-    private void addClaimToBlockchain(InsuranceClaim claim) {
-        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash());
-        blockchain.addBlock(newBlock);
-        System.out.println("Claim added to blockchain successfully.");
-        saveBlockchainToFile(blockchain);  // Save the updated blockchain
     }
 
     public void processInsuranceClaim() {
-        PublicKey publicKey = Asymmetric.loadPublicKey("HealthcareProvider");      
-        try (BufferedReader reader = new BufferedReader(new FileReader(CLAIMS_FILE))) {
+    	PublicKey publicKey = Asymmetric.loadPublicKey("HealthcareProvider");
+    	
+        try (BufferedReader reader = new BufferedReader(new FileReader(CLAIMS_FILE))){
 
             System.out.println("\nProcessing Insurance Claims:");
             String line;
@@ -108,77 +52,121 @@ public class InsuranceCompany {
 
             while ((line = reader.readLine()) != null) {
                 String decryptedData = Symmetric.decrypt(line, loadedKey);
-                
-                // Validate decrypted data
-                if(decryptedData == null || decryptedData.isEmpty()) {
-                    System.out.println("Error: Decrypted data is empty or invalid.");
-                    continue;
-                }
-
                 InsuranceClaim claim = new Gson().fromJson(decryptedData, InsuranceClaim.class);
                 claims.add(claim);
-
-                String signature = retrieveSignature(claim.getClaimID());
                 
-                // Validate retrieved signature
-                if (signature == null || signature.isEmpty()) {
-                    System.out.println("Error: Signature is missing or invalid for claim ID: " + claim.getClaimID());
-                    continue;
-                }
+                String signature = retrieveSignature(claim.getClaimID());
+                if (signature != null) {
+                    String claimJson = new Gson().toJson(claim);
 
-                String claimJson = new Gson().toJson(claim);
-
-                if (DigitalSignature.verify(claimJson, signature, publicKey)) {
-                    System.out.println((i + 1) + ". " + claim + "\n");
-                    verifiedClaims.add(claim);
-                    i++;
-                } else {
-                    System.out.println("Error: Signature verification failed for claim ID: " + claim.getClaimID());
+                    if (DigitalSignature.verify(claimJson, signature, publicKey)) {
+                        System.out.println((i + 1) + ". " + claim + "\n");
+                        verifiedClaims.add(claim);
+                        i++;
+                    }
                 }
             }
             
             if(verifiedClaims.size() > 0) {
-                while(true) {
-                    try {
-                        System.out.print("Enter the number of the claim you want to approve (or type '0' to cancel): ");
-                        int claimNumber = Integer.parseInt(scanner.nextLine());
-
-                        if(claimNumber == 0) {
-                            return;
-                        }
-                        
-                        // Validate user input for claim approval
-                        if (claimNumber <= 0 || claimNumber > verifiedClaims.size()) {
-                            System.out.println("Invalid claim number. Please try again.");
-                            continue;
-                        }
-
-                        InsuranceClaim selectedClaim = verifiedClaims.get(claimNumber - 1);
-                        approveClaim(selectedClaim);
-                        
-                        // Update the digital signature
-                        String claimJson = new Gson().toJson(selectedClaim);
-                        String newSignature = DigitalSignature.sign(claimJson, Asymmetric.loadPrivateKey("InsuranceCompany"));
-                        updateSignature(selectedClaim.getClaimID(), newSignature);
-
-                        break;
-
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid input. Please enter a number or '0' to cancel.");
-                    }
-                }
-                
+            	while(true) {
+            		try {
+		            	System.out.print("Enter the number of the claim you want to approve (or type '0' to cancel): ");
+			            int claimNumber = Integer.parseInt(scanner.nextLine());
+			
+			            if(claimNumber == 0) {
+			            	return;
+			            }
+			            
+			            if (claimNumber <= verifiedClaims.size()) {
+	                        InsuranceClaim selectedClaim = verifiedClaims.get(claimNumber - 1);
+	                        approveClaim(selectedClaim);
+	                        
+	                     // Update the digital signature
+	                        String claimJson = new Gson().toJson(selectedClaim);
+	                        String newSignature = DigitalSignature.sign(claimJson, Asymmetric.loadPrivateKey("InsuranceCompany"));
+	                        updateSignature(selectedClaim.getClaimID(), newSignature);
+           
+	                        break;
+	                        
+	                    } else {
+	                        System.out.println("Invalid claim number. Please try again.");
+	                    }
+			            
+		            } catch (NumberFormatException e) {
+		            	System.out.println("Invalid input. Please enter a number or '0' to cancel.");
+		            }
+            	}
+            	
             } else {
-                System.out.println("No claim is signed yet");
+            	System.out.println("No claim is signed yet");
             }
-
-        } catch (IOException e) {
-            System.err.println("Error reading from the claims file: " + e.getMessage());
+            
+            
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error processing insurance claims: " + e.getMessage());
         }
     }
-
+    
+    private String calculateMerkleRoot(List<String> dataMerkle) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            while (dataMerkle.size() > 1) {
+                List<String> newMerkle = new ArrayList<>();
+                for (int i = 0; i < dataMerkle.size(); i += 2) {
+                    String combined = dataMerkle.get(i);
+                    if (i + 1 < dataMerkle.size()) {
+                        combined += dataMerkle.get(i + 1);
+                    }
+                    byte[] combinedBytes = combined.getBytes();
+                    byte[] hash = digest.digest(combinedBytes);
+                    newMerkle.add(bytesToHex(hash));
+                }
+                dataMerkle = newMerkle;
+            }
+            return dataMerkle.get(0);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     
 
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    private List<String> prepareDataForMerkleTree(InsuranceClaim claim) {
+        List<String> dataMerkle = new ArrayList<>();
+    
+        // Add relevant claim details to the dataMerkle list
+        // For example, you can add claim ID, patient ID, diagnosis details, treatment details, etc.
+        dataMerkle.add(claim.getClaimID());
+        dataMerkle.add(claim.getPatientID());
+        dataMerkle.add(claim.getDiagnosis());
+        dataMerkle.add(claim.getTreatment());
+    
+        // Add any other relevant information to the dataMerkle list
+    
+        return dataMerkle;
+    }
+    
+    
+    private void addClaimToBlockchain(InsuranceClaim claim, List<String> dataMerkle) {
+        String merkleRoot = calculateMerkleRoot(claim.toJson()); // Calculate Merkle root
+        Block newBlock = new Block(claim.toJson(), blockchain.getLatestBlock().getHash(), dataMerkle);
+        blockchain.addBlock(newBlock);
+        System.out.println("Claim added to blockchain successfully.");
+        Blockchain.saveBlockchain(blockchain);  // Save the updated blockchain
+    }
+    
     private void updateSignature(String claimID, String newSignature) {
         // Read existing signatures from the file
         StringBuilder updatedSignatures = new StringBuilder();
@@ -253,11 +241,11 @@ public class InsuranceCompany {
                     System.out.println("Claim approved.");
                     validInput = true; // Exit the loop
 
-        
+                    List<String> dataMerkle = prepareDataForMerkleTree(selectedClaim); // You need to define this method
 
 
                     // Add the claim to the blockchain
-                    addClaimToBlockchain(selectedClaim);
+                    addClaimToBlockchain(selectedClaim, dataMerkle);
 
                     // Update the digital signature
                     String claimJson = new Gson().toJson(selectedClaim);
