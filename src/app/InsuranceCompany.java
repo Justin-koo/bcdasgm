@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -61,7 +59,7 @@ public class InsuranceCompany {
             if (file.exists()) {
                 try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(BLOCKCHAIN_FILE))) {
                     loadedBlockchain = (Blockchain) ois.readObject();
-                    System.out.println("Blockchain loaded successfully from " + BLOCKCHAIN_FILE);
+//                    System.out.println("Blockchain loaded successfully from " + BLOCKCHAIN_FILE);
                 } catch (IOException | ClassNotFoundException e) {
                     System.err.println("Error loading blockchain from file: " + e.getMessage());
                     loadedBlockchain = new Blockchain();  // Create new blockchain if file is corrupt
@@ -253,16 +251,8 @@ public class InsuranceCompany {
                     System.out.println("Claim approved.");
                     validInput = true; // Exit the loop
 
-        
-
-
                     // Add the claim to the blockchain
                     addClaimToBlockchain(selectedClaim);
-
-                    // Update the digital signature
-                    String claimJson = new Gson().toJson(selectedClaim);
-                    String newSignature = DigitalSignature.sign(claimJson, Asymmetric.loadPrivateKey("InsuranceCompany"));
-                    updateSignature(selectedClaim.getClaimID(), newSignature);
 
                     break;
 
@@ -293,6 +283,7 @@ public class InsuranceCompany {
     private void rewriteClaimsToFile(List<InsuranceClaim> claims) throws IOException {
         try (FileWriter writer = new FileWriter(CLAIMS_FILE)) {
             for (InsuranceClaim claim : claims) {
+            	System.out.println(claim);
                 String claimJson = new Gson().toJson(claim);
                 String encryptedClaim = Symmetric.encrypt(claimJson, loadedKey);
                 writer.write(encryptedClaim + "\n");

@@ -1,11 +1,6 @@
 package crypto;
 
-import javax.crypto.*;
-import java.io.*;
-import java.security.*;
-import java.util.Base64;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 

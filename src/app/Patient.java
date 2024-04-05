@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
+import com.google.gson.Gson;
+
 import crypto.Symmetric;
 
 public class Patient {
@@ -39,12 +41,28 @@ public class Patient {
     }
 
     public void viewInsuranceClaimStatus() {
+    	SecretKey loadedKey = Symmetric.loadKey("InsuranceClaim");
+    	
         try (BufferedReader reader = new BufferedReader(new FileReader("insurance_claims.txt"))) {
             String line;
-            System.out.println("Insurance Claim Status:");
+            int i = 0;
+            boolean foundClaims = false;
+            System.out.println("\nInsurance Claim Status:");
+            
             while ((line = reader.readLine()) != null) {
-                // Display each insurance claim and its status
-                System.out.println(line);
+            	String decryptedData = Symmetric.decrypt(line, loadedKey);
+            	InsuranceClaim claim = new Gson().fromJson(decryptedData, InsuranceClaim.class);
+                
+                if(claim.getPatientID().equals(patientID)) {
+                    System.out.println((i + 1) + ". " + claim + "\n");
+                    i++;
+                    foundClaims = true;
+                }
+            }
+            
+         // If no claims are found, print
+            if (!foundClaims) {
+                System.out.println("No claim available");
             }
         } catch (IOException e) {
             System.err.println("Error reading insurance claim status: " + e.getMessage());
